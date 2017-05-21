@@ -162,7 +162,7 @@ public class XmlDataHelper {
     public void addDataIntoXML(){
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder = null;
-//        InputStream is = null; // 에셋에서 가져올때 썻었음
+
         Document doc = null;
         Element root = null;
         try {
@@ -171,7 +171,8 @@ public class XmlDataHelper {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 is = new FileInputStream(mContext.getDataDir() +"/files/"+ XmlDataFileName);
             }
-//            is = mContext.getAssets().open(XmlDataFileName); // 에셋에서 가져올때 썻었음
+            //InputStream is = null; // 에셋에서 가져올때 썻었음
+            //is = mContext.getAssets().open(XmlDataFileName); // 에셋에서 가져올때 썻었음
             doc = documentBuilder.parse(is);
             root = doc.getDocumentElement();
         } catch (ParserConfigurationException e) {

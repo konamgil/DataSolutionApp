@@ -1,6 +1,7 @@
 package com.dsa.total.datasolutionapp.DataHelper;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.dsa.total.datasolutionapp.DataTransferObject.phoneBookItemObject;
 
@@ -8,8 +9,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 import java.util.ArrayList;
 
 /**
@@ -46,6 +52,7 @@ public class JsonDataHelper {
 
     public void addJsonObjectatArray(JSONObject jObject){
         jarray.put(jObject);
+        saveJsonFile(jarray);
     }
 
     /**
@@ -64,7 +71,11 @@ public class JsonDataHelper {
         String json = null;
         try {
 
-            InputStream is = mContext.getAssets().open(JsonDataFileName);
+//            InputStream is = mContext.getAssets().open(JsonDataFileName); //assets 에서 가져오기
+            FileInputStream is = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                is = new FileInputStream(mContext.getDataDir() +"/files/"+ JsonDataFileName);
+            }
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -98,6 +109,23 @@ public class JsonDataHelper {
             e.printStackTrace();
         }
         return jObject;
+    }
+
+    public void saveJsonFile(JSONArray mjarray){
+        try {
+            Writer output = null;
+            File file = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                file = new File(mContext.getDataDir() +"/files/"+ JsonDataFileName);
+            }
+            output = new BufferedWriter(new FileWriter(file));
+            output.write(mjarray.toString());
+            output.close();
+            Toast.makeText(mContext, "Composition saved", Toast.LENGTH_LONG).show();
+
+        } catch (Exception e) {
+            Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
 }

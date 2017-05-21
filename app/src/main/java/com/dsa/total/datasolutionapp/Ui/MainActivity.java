@@ -161,6 +161,10 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(context,"XML",Toast.LENGTH_SHORT).show();
                                 break;
                             case "Preference":
+                                int preference_id = makeAutoId();
+                                PrefDataHelper prefDataHelper = new PrefDataHelper(context);
+                                prefDataHelper.saveJsonFileInPref(preference_id,etNameInput.getText().toString(),etAddrInput.getText().toString(),etPhoneInput.getText().toString());
+                                mListAdapter.add(preference_id,etNameInput.getText().toString(),etAddrInput.getText().toString(),etPhoneInput.getText().toString(),"Preference");
                                 Toast.makeText(context,"Preference",Toast.LENGTH_SHORT).show();
                                 break;
                             default:
@@ -199,8 +203,8 @@ public class MainActivity extends AppCompatActivity {
     private void addJsonObect(JSONObject jsonObject){
 //        addedNewJsonData.put(jsonObject);
         //임시
-        PrefDataHelper mPrefDataHelper = new PrefDataHelper(context);
-        mPrefDataHelper.saveJsonFileInPref(jsonObject);
+//        PrefDataHelper mPrefDataHelper = new PrefDataHelper(context);
+//        mPrefDataHelper.saveJsonFileInPref(jsonObject);
     }
 
 

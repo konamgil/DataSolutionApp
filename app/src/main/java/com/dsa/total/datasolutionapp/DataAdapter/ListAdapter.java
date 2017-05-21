@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.dsa.total.datasolutionapp.DataHelper.JsonDataHelper;
+import com.dsa.total.datasolutionapp.DataHelper.PrefDataHelper;
 import com.dsa.total.datasolutionapp.DataHelper.XmlDataHelper;
 import com.dsa.total.datasolutionapp.DataTransferObject.phoneBookItemObject;
 import com.dsa.total.datasolutionapp.R;
@@ -33,6 +34,7 @@ public class ListAdapter extends BaseAdapter {
 
     //원본 리스트
     private ArrayList<phoneBookItemObject> phoneBookList;
+
     //여벌 리스트
     private ArrayList<phoneBookItemObject> arraylist;
 
@@ -44,6 +46,9 @@ public class ListAdapter extends BaseAdapter {
 
     //XMLhelper 선언
     private XmlDataHelper xmlDataHelper;
+
+    //Prefhelper 선언
+    private PrefDataHelper prefDataHelper;
 
     /**
      * 생성자
@@ -68,6 +73,10 @@ public class ListAdapter extends BaseAdapter {
         //phoneBookList에 sqlite XML로부터 읽어들인 데이터를 가져온다
         xmlDataHelper = new XmlDataHelper(mContext);
         getDataListFromXML();
+
+        //phoneBookList에 sqlite Pref로부터 읽어들인 데이터를 가져온다
+        prefDataHelper = new PrefDataHelper(mContext);
+        getDataListFromPref();
 
         //기존의 phoneBookLiST를 여벌의 arraylist에 복사한다.
         this.arraylist.addAll(phoneBookList);
@@ -118,6 +127,9 @@ public class ListAdapter extends BaseAdapter {
         //새롭게  phoneBookList를 xml로부터 불러온다
         getDataListFromXML();
 
+        //새롭게 phonecBookList를 pref로부터 불러온다
+        getDataListFromPref();
+
 
         //데이터 구성의 변경이 있음을 아답터에게 알리고 리스트뷰를 갱신하도록 한다
         notifyDataSetChanged();
@@ -150,6 +162,9 @@ public class ListAdapter extends BaseAdapter {
 
     }
 
+    /**
+     * sqlite로 부터 데이터 가져와서 phonebooklist에 담기
+     */
     private void getDataListFromSQLite(){
         //database 열기
         dataBaseAdapter.createDateBase();
@@ -171,10 +186,20 @@ public class ListAdapter extends BaseAdapter {
         dataBaseAdapter.close();
     }
 
+    /**
+     * xml로 파일로 부터 데이터 가져와서 phonebooklist에 담기
+     */
     private void getDataListFromXML(){
         ArrayList<phoneBookItemObject> xmlDataFromXML = xmlDataHelper.getXmlData();
         phoneBookList.addAll(xmlDataFromXML);
     }
+
+    private void getDataListFromPref(){
+//        ArrayList<phoneBookItemObject> prefDataFromPref = prefDataHelper.getJsonFileFromPref();
+        ArrayList<phoneBookItemObject> prefDataFromPref = prefDataHelper.getJsonFileFromPref();
+        phoneBookList.addAll(prefDataFromPref);
+    }
+
     /**
      *
      * @return phoneBookList의 개수를 구한다
