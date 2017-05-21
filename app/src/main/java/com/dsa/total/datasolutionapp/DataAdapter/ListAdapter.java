@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.dsa.total.datasolutionapp.DataHelper.JsonDataHelper;
+import com.dsa.total.datasolutionapp.DataHelper.XmlDataHelper;
 import com.dsa.total.datasolutionapp.DataTransferObject.phoneBookItemObject;
 import com.dsa.total.datasolutionapp.R;
 
@@ -41,6 +42,9 @@ public class ListAdapter extends BaseAdapter {
     //SQLitehelper 선언
     private DataBaseAdapter dataBaseAdapter;
 
+    //XMLhelper 선언
+    private XmlDataHelper xmlDataHelper;
+
     /**
      * 생성자
      * @param context
@@ -61,6 +65,9 @@ public class ListAdapter extends BaseAdapter {
         dataBaseAdapter = new DataBaseAdapter(mContext);
         getDataListFromSQLite();
 
+        //phoneBookList에 sqlite XML로부터 읽어들인 데이터를 가져온다
+        xmlDataHelper = new XmlDataHelper(mContext);
+        getDataListFromXML();
 
         //기존의 phoneBookLiST를 여벌의 arraylist에 복사한다.
         this.arraylist.addAll(phoneBookList);
@@ -72,13 +79,20 @@ public class ListAdapter extends BaseAdapter {
      */
     public void addObjectSecondList(JSONObject jObject){
         try {
+            int _id = jObject.getInt("_id");
             String name = jObject.getString("name");
             String addr = jObject.getString("addr");
             String tel = jObject.getString("tel");
-            arraylist.add(new phoneBookItemObject(name,addr,tel));
+            String telFromDataHelper = jObject.getString("telFromDataHelper");
+            arraylist.add(new phoneBookItemObject(_id,name,addr,tel,telFromDataHelper));
         } catch (JSONException j){
             j.printStackTrace();
         }
+    }
+
+    //두번째 여벌의 arraylist에 삽입
+    private void addObjectSecondList(int _id, String name, String addr, String tel, String telFromDataHelper){
+        arraylist.add(new phoneBookItemObject(_id,name,addr,tel,telFromDataHelper));
     }
 
     /**
@@ -95,8 +109,15 @@ public class ListAdapter extends BaseAdapter {
         //기존 phonebooklist를 클리어 하고
         phoneBookList.clear();
 
-        //새롭게 phoneBookList를 구성한다
+        //새롭게 phoneBookList를 json으로부터 불러온다
         getDataListFromJson();
+
+        //새롭게 phoneBookList를 sql로부터 불러온다
+        getDataListFromSQLite();
+
+        //새롭게  phoneBookList를 xml로부터 불러온다
+        getDataListFromXML();
+
 
         //데이터 구성의 변경이 있음을 아답터에게 알리고 리스트뷰를 갱신하도록 한다
         notifyDataSetChanged();
@@ -115,10 +136,13 @@ public class ListAdapter extends BaseAdapter {
         for(int i =0; i<dataArray.length(); i++){
             try {
                 JSONObject jObject = dataArray.getJSONObject(i);
+                int _id = jObject.getInt("_id");
                 String name = jObject.getString("name");
                 String addr = jObject.getString("addr");
                 String tel = jObject.getString("tel");
-                phoneBookList.add(new phoneBookItemObject(name,addr,tel));
+                String telFromDataHelper = jObject.getString("telFromDataHelper");
+
+                phoneBookList.add(new phoneBookItemObject(_id,name,tel,addr,telFromDataHelper));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -144,11 +168,13 @@ public class ListAdapter extends BaseAdapter {
 
             phoneBookList.add(new phoneBookItemObject(_id,telName,telNumber,telAddress,telFromDataHelper));
         }
-
         dataBaseAdapter.close();
     }
 
-
+    private void getDataListFromXML(){
+        ArrayList<phoneBookItemObject> xmlDataFromXML = xmlDataHelper.getXmlData();
+        phoneBookList.addAll(xmlDataFromXML);
+    }
     /**
      *
      * @return phoneBookList의 개수를 구한다
@@ -191,9 +217,11 @@ public class ListAdapter extends BaseAdapter {
         if (v == null){
             viewHolder = new ViewHolder();
             v = inflater.inflate(R.layout.item_data,null);
+
             viewHolder.tvName = (TextView)v.findViewById(R.id.tvName);
             viewHolder.tvAddr = (TextView)v.findViewById(R.id.tvAddr);
             viewHolder.tvTel = (TextView)v.findViewById(R.id.tvTel);
+            viewHolder.tvStore = (TextView)v.findViewById(R.id.tvStore) ;
 
             v.setTag(viewHolder);
         } else {
@@ -203,6 +231,7 @@ public class ListAdapter extends BaseAdapter {
         viewHolder.tvName.setText(phoneItem.getTelName());
         viewHolder.tvAddr.setText(phoneItem.getTelAddress());
         viewHolder.tvTel.setText(phoneItem.getTelNumber());
+        viewHolder.tvStore.setText(phoneItem.getTelFromDataHelper());
 
         return v;
     }
@@ -214,6 +243,7 @@ public class ListAdapter extends BaseAdapter {
         public TextView tvName = null;
         public TextView tvAddr = null;
         public TextView tvTel = null;
+        public TextView tvStore = null;
 
     }
 
@@ -223,8 +253,9 @@ public class ListAdapter extends BaseAdapter {
      * @param addr
      * @param tel
      */
-    public void add(String name, String addr, String tel){
-        phoneBookList.add(new phoneBookItemObject(name,addr,tel));
+    public void add(int _id, String name, String addr, String tel, String dataStore){
+        addObjectSecondList(_id, name, addr, tel, dataStore);
+        phoneBookList.add(new phoneBookItemObject(_id,name,addr,tel,dataStore));
         notifyDataSetChanged();
     }
 

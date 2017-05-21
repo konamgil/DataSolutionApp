@@ -43,17 +43,17 @@ public class phoneBookItemObject {
      * @param telName
      * @param telNumber
      * @param telAddress
-     * @param dataHelper
+     * @param telFromDataHelper
      */
-    public phoneBookItemObject(String telName, String telNumber, String telAddress, String dataHelper) {
+    public phoneBookItemObject(String telName, String telNumber, String telAddress, String telFromDataHelper) {
         this.telName = telName;
         this.telNumber = telNumber;
         this.telAddress = telAddress;
-        this.telName = telName;
+        this.telFromDataHelper = telFromDataHelper;
     }
 
     /**
-     * 현재 json 파일로부터 세개의 필드만 받아와서 초기화하고있다
+     * 현재 json 파일로부터 세개의 필드만 받아와서 초기화하고있다(안쓰고있음)
      * @param telName
      * @param telNumber
      * @param telAddress
@@ -63,6 +63,9 @@ public class phoneBookItemObject {
         this.telNumber = telNumber;
         this.telAddress = telAddress;
         this.telName = telName;
+    }
+
+    public phoneBookItemObject() {
     }
 
     public String getTelName() {

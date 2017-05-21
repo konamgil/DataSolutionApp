@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="datakinds">
+        <item>SQLite</item>
+        <item>Json</item>
+        <item>XML</item>
+        <item>Preference</item>
+    </string-array>
+</resources>

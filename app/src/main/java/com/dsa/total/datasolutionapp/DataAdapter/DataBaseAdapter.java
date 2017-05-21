@@ -101,12 +101,12 @@ public class DataBaseAdapter {
         }
     }
 
-    public void insertPhoneBookData(int _id, String telName, String telNumber, String telAddress){
+    public void insertPhoneBookData(int _id, String telName, String telNumber, String telAddress, String telFromDataHelper){
             try {
 
                 mDb = mDbHelper.getWritableDatabase();
-//                String sql = "INSERT INTO phonebook (telName, telNumber, telAddress,telFromDataHelper) VALUES ('"+telName+"', '"+telNumber+"', '"+telAddress+"', 'SQLite' );";
-                String sql = "INSERT INTO phonebook (_id, telName, telNumber, telAddress,telFromDataHelper) VALUES (101, '고남길', '01072553466', '서울시 송파구 거여동', 'SQLite' );";
+                String sql = "INSERT INTO phonebook (_id, telName, telNumber, telAddress,telFromDataHelper) VALUES ('"+_id+"', '"+telName+"', '"+telNumber+"', '"+telAddress+"', '"+telFromDataHelper+"' );";
+//                String sql = "INSERT INTO phonebook (_id, telName, telNumber, telAddress,telFromDataHelper) VALUES (101, '고남길', '01072553466', '서울시 송파구 거여동', 'SQLite' );";
                 mDb.execSQL(sql);
                 mDbHelper.close();
                 mDb.close();
@@ -129,5 +129,18 @@ public class DataBaseAdapter {
                 Log.e(TAG, "updatePhoneBookData >>" + mSQLException.toString());
                 throw mSQLException;
             }
+    }
+
+    public void deletePhoneBookData(int _id){
+        try {
+            mDb = mDbHelper.getWritableDatabase();
+//            String sq = "DELETE FROM phonebook WHERE _id='2';";
+            String sql = "DELETE FROM phonebook WHERE _id = '"+_id+"';";
+            mDb.execSQL(sql);
+            mDbHelper.close();
+        }catch (SQLException mSQLException){
+            Log.e(TAG, "deletePhoneBookData >>" + mSQLException.toString());
+            throw mSQLException;
+        }
     }
 }

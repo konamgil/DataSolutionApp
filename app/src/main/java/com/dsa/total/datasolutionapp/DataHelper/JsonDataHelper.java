@@ -86,12 +86,14 @@ public class JsonDataHelper {
      * @param tel
      * @return
      */
-    public JSONObject makeJsonObject(String name, String addr, String tel){
+    public JSONObject makeJsonObject(int _id, String name, String addr, String tel,String Json){
         JSONObject jObject = new JSONObject();
         try {
+            jObject.put("_id", _id);
             jObject.put("name" ,name);
             jObject.put("addr" ,addr);
             jObject.put("tel" ,tel);
+            jObject.put("telFromDataHelper",Json);
         }catch (Exception e){
             e.printStackTrace();
         }
