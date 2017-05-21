@@ -27,14 +27,14 @@ public class phoneBookItemObject {
      * @param telName
      * @param telNumber
      * @param telAddress
-     * @param dataHelper
+     * @param telFromDataHelper
      */
-    public phoneBookItemObject(int _id, String telName, String telNumber, String telAddress, String dataHelper) {
+    public phoneBookItemObject(int _id, String telName, String telNumber, String telAddress, String telFromDataHelper) {
         this._id = _id;
         this.telName = telName;
         this.telNumber = telNumber;
         this.telAddress = telAddress;
-        this.telName = telName;
+        this.telFromDataHelper = telFromDataHelper;
     }
 
     /**

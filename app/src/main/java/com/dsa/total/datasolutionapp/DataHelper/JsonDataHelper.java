@@ -21,35 +21,38 @@ public class JsonDataHelper {
     private Context mContext;
     //assets 폴더에 있는 json 파일의 이름이다
     private String JsonDataFileName = "jsonphonebook.json";
-    private String rawDataFromJson;
-    private JSONArray jarray;
-
+    private JSONArray jarray = null;
+    private String rawDataFromJson = null;
     /**
      * 생성자
      * @param context
      */
     public JsonDataHelper(Context context) {
         this.mContext = context;
+        this.rawDataFromJson = loadJSONFromAsset();
+
+        //json file 로부터 데이터 받아들임
+        try {
+
+            this.jarray = new JSONArray(rawDataFromJson);
+            this.jarray = getJsonData();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
+
+
+    public void addJsonObjectatArray(JSONObject jObject){
+        jarray.put(jObject);
+    }
 
     /**
      * json 파일의 담겨있는 문자열 정보를 array에 담아서 array를 반환한다
      * @return JSONArray
      */
     public JSONArray getJsonData(){
-        rawDataFromJson = loadJSONFromAsset();
-
-        jarray = null;
-        try {
-            jarray = new JSONArray(rawDataFromJson);
-//            for (int i=0; i<jarray.length(); i++){
-//                 jObject = jarray.getJSONObject(i);
-//                listdata.add(jarray.getString(i));
-//            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
         return jarray;
     }
 
@@ -57,7 +60,7 @@ public class JsonDataHelper {
      * asset 폴더에 있는 json 파일을 로드한다
      * @return 읽어들인 json 파일의 문자열 정보가 담겨있다
      */
-    public String loadJSONFromAsset() {
+    private String loadJSONFromAsset() {
         String json = null;
         try {
 

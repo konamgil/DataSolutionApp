@@ -31,7 +31,8 @@ public class DataBaseAdapter {
      */
     public DataBaseAdapter(Context context) {
         this.mContext = context;
-        mDbHelper = new DataBaseHelper(mContext);
+        //Databaseheler 초기화
+        this.mDbHelper = new DataBaseHelper(mContext);
     }
 
     /**
@@ -81,9 +82,9 @@ public class DataBaseAdapter {
      * 테이블의 모든 정보들을 담는다
      * @return Cursor
      */
-    public Cursor getPhoneBookData() {
+    public Cursor selectPhoneBookData() {
         try {
-
+            mDb = mDbHelper.getReadableDatabase();
             String sql ="SELECT * FROM phonebook";
 
             Cursor mCur = mDb.rawQuery(sql, null);
@@ -91,6 +92,7 @@ public class DataBaseAdapter {
             {
                 mCur.moveToNext();
             }
+            mDbHelper.close();
             return mCur;
         }
         catch (SQLException mSQLException) {
@@ -99,18 +101,33 @@ public class DataBaseAdapter {
         }
     }
 
-    public void insetPhoneBookData(String telName, String telNumber, String telAddress, String telFromDataHelper ){
-        if(telFromDataHelper == SQLITE ) {
+    public void insertPhoneBookData(int _id, String telName, String telNumber, String telAddress){
             try {
 
-                String sql = "INSERT INTO phonebook (telName, telNumber, telAddress,telFromDataHelper) VALUES ('고남길', '01072553466', '서울시 송파구 거여동', 'SQL' );";
-//                String sql = "INSERT INTO phonebook (" + telName +"," + telNumber+"," + telAddress+"," + telFromDataHelper +") VALUES (4, 'Mark', 25, 'Rich-Mond ', 65000.00 );";
-
+                mDb = mDbHelper.getWritableDatabase();
+//                String sql = "INSERT INTO phonebook (telName, telNumber, telAddress,telFromDataHelper) VALUES ('"+telName+"', '"+telNumber+"', '"+telAddress+"', 'SQLite' );";
+                String sql = "INSERT INTO phonebook (_id, telName, telNumber, telAddress,telFromDataHelper) VALUES (101, '고남길', '01072553466', '서울시 송파구 거여동', 'SQLite' );";
+                mDb.execSQL(sql);
+                mDbHelper.close();
+                mDb.close();
 
             } catch (SQLException mSQLException) {
-                Log.e(TAG, "getTestData >>" + mSQLException.toString());
+                Log.e(TAG, "insertPhoneBookData >>" + mSQLException.toString());
                 throw mSQLException;
             }
-        }
+    }
+
+    public void updatePhoneBookData(int _id, String telName, String telNumber, String telAddress, String telFromDataHelper){
+            try {
+
+                mDb = mDbHelper.getWritableDatabase();
+                String sql = "UPDATE phonebook SET telName = '"+telName+"', telNumber = '"+telNumber+"', telAddress = '"+telAddress+"', telFromDataHelper = 'SQLITE' WHERE _id = "+_id+";";
+                mDb.execSQL(sql);
+                mDbHelper.close();
+
+            }catch (SQLException mSQLException){
+                Log.e(TAG, "updatePhoneBookData >>" + mSQLException.toString());
+                throw mSQLException;
+            }
     }
 }

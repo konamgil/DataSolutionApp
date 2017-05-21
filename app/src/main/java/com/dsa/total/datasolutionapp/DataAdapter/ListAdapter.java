@@ -1,6 +1,7 @@
 package com.dsa.total.datasolutionapp.DataAdapter;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,12 +25,21 @@ import java.util.ArrayList;
 public class ListAdapter extends BaseAdapter {
 
     private Context mContext;
+
+    //listadapter 부분
     private LayoutInflater inflater = null;
-    private ArrayList<phoneBookItemObject> phoneBookList;
     private ViewHolder viewHolder = null;
+
+    //원본 리스트
+    private ArrayList<phoneBookItemObject> phoneBookList;
+    //여벌 리스트
     private ArrayList<phoneBookItemObject> arraylist;
+
+    //jsonhelper 선언
     private JsonDataHelper jsonDataHelper;
-    private JSONArray dataArray;
+
+    //SQLitehelper 선언
+    private DataBaseAdapter dataBaseAdapter;
 
     /**
      * 생성자
@@ -39,17 +49,18 @@ public class ListAdapter extends BaseAdapter {
         this.mContext = context;
         this.inflater = LayoutInflater.from(context);
 
-        //json 데이터 처리 부분
-        jsonDataHelper = new JsonDataHelper(mContext);
-        dataArray = jsonDataHelper.getJsonData();
-        //json 데이터 처리 부분 end
-
         //각 리스트들을 초기화한다
         this.phoneBookList = new ArrayList<phoneBookItemObject>();
         this.arraylist = new ArrayList<phoneBookItemObject>();
 
         //phoneBookList에 json 파일로부터 읽어들인 데이터를 가져온다
-        getDataList();
+        jsonDataHelper = new JsonDataHelper(mContext);
+        getDataListFromJson();
+
+        //phoneBookList에 sqlite db로부터 읽어들인 데이터를 가져온다
+        dataBaseAdapter = new DataBaseAdapter(mContext);
+        getDataListFromSQLite();
+
 
         //기존의 phoneBookLiST를 여벌의 arraylist에 복사한다.
         this.arraylist.addAll(phoneBookList);
@@ -71,12 +82,12 @@ public class ListAdapter extends BaseAdapter {
     }
 
     /**
-     * dataArray(제이슨 어레이로부터 제이슨 오브젝트를 하나하나 리스트에 애드를 한다
+     * dataArray(제이슨 어레이로부터 제이슨 오브젝트를 하나하나 리스트에 add를 한다
      */
     public void addJsonObject(JSONObject jObject){
 
         //읽어들인 jsonaraay에 새로운 jsonobject를 담는다
-        dataArray.put(jObject);
+        jsonDataHelper.addJsonObjectatArray(jObject);
 
         //여벌의 arraylist에 담는다
         addObjectSecondList(jObject);
@@ -85,7 +96,7 @@ public class ListAdapter extends BaseAdapter {
         phoneBookList.clear();
 
         //새롭게 phoneBookList를 구성한다
-        getDataList();
+        getDataListFromJson();
 
         //데이터 구성의 변경이 있음을 아답터에게 알리고 리스트뷰를 갱신하도록 한다
         notifyDataSetChanged();
@@ -94,11 +105,13 @@ public class ListAdapter extends BaseAdapter {
     /**
      * 읽어들인 jsonArray로부터 개별적인 object를 꺼내어서 phonebooklist에 담는다
      */
-    public void getDataList(){
+    public void getDataListFromJson(){
+        //json 데이터 처리 부분
 
+        JSONArray dataArray = jsonDataHelper.getJsonData();
+        //json end
         // 테스트 데이터
         // dataArray.put(jsonDataHelper.addJsonFile("고남길","부산","010"));
-
         for(int i =0; i<dataArray.length(); i++){
             try {
                 JSONObject jObject = dataArray.getJSONObject(i);
@@ -111,6 +124,28 @@ public class ListAdapter extends BaseAdapter {
             }
         }
 
+    }
+
+    private void getDataListFromSQLite(){
+        //database 열기
+        dataBaseAdapter.createDateBase();
+        //database 오픈
+        dataBaseAdapter.open();
+
+        Cursor getCursorFromSQLite = dataBaseAdapter.selectPhoneBookData();
+
+        while (getCursorFromSQLite.moveToNext()){
+            //db 필드 담아와서 각 변수에 대입
+            int _id = getCursorFromSQLite.getInt(0);
+            String telName = getCursorFromSQLite.getString(1);
+            String telNumber = getCursorFromSQLite.getString(2);
+            String telAddress = getCursorFromSQLite.getString(3);
+            String telFromDataHelper = getCursorFromSQLite.getString(4);
+
+            phoneBookList.add(new phoneBookItemObject(_id,telName,telNumber,telAddress,telFromDataHelper));
+        }
+
+        dataBaseAdapter.close();
     }
 
 

@@ -32,6 +32,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
      */
     public DataBaseHelper(Context context){
         super(context, DB_NAME, null, version);// 1은 데이터베이스 버젼
+        this.mContext = context;
         if(android.os.Build.VERSION.SDK_INT >= 17){
             this.DB_PATH = context.getApplicationInfo().dataDir + "/databases/";
         }
@@ -39,7 +40,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         {
             this.DB_PATH = "/data/data/" + context.getPackageName() + "/databases/";
         }
-        this.mContext = context;
     }
 
     /**
@@ -99,7 +99,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         //테이블 만들기
-        db.execSQL("CREATE TABLE phonebook (_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+        db.execSQL("CREATE TABLE phonebook (_id INTEGER PRIMARY KEY NOT NULL," +
                     "telName TEXT,telNumber TEXT,telAddress TEXT,telFromDataHelper  TEXT);");
     }
 
