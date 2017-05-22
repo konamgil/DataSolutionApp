@@ -3,12 +3,16 @@ package com.dsa.total.datasolutionapp.Ui;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -28,11 +32,17 @@ import com.dsa.total.datasolutionapp.DataHelper.PrefDataHelper;
 import com.dsa.total.datasolutionapp.DataHelper.XmlDataHelper;
 import com.dsa.total.datasolutionapp.DataTransferObject.phoneBookItemObject;
 import com.dsa.total.datasolutionapp.R;
+import com.kennyc.bottomsheet.BottomSheet;
+import com.kennyc.bottomsheet.BottomSheetListener;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.xml.sax.SAXException;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,12 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private Button btnSuccess;
     private Button btnCancel;
 
-    //프리퍼런스로 보낼 jsonArray 이다
-//    private JSONArray addedNewJsonDataArray = new JSONArray();
-    private JSONObject addedNewJsonData = new JSONObject();
-
-
-
+    private ArrayList<phoneBookItemObject> mArrayListForUpdateDelete;
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
         //EditText의 필터 부분에 와쳐를 연결한다
         etName.addTextChangedListener(tw);
 
+        mArrayListForUpdateDelete = mListAdapter.getAllDataList();
+
+        dataList.setOnItemLongClickListener(mOnItemLongClickListener);
         hideSoftKeyboard(etName);
     }
 
@@ -106,15 +115,11 @@ public class MainActivity extends AppCompatActivity {
                 ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context, R.array.datakinds, android.R.layout.simple_spinner_item);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinner.setAdapter(adapter);
-
-                //선택된 스피너
-
-
-
                 // 스피너 end
 
                 final AlertDialog alertDialog = alert.create();
 
+                //취소버튼
                 btnCancel = (Button)innerView.findViewById(R.id.btnCancel);
                 btnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -123,16 +128,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-//                final String etname = etNameInput.getText().toString();
-//                final String etPhone = etPhoneInput.getText().toString();
-//                final String etAddr = etAddrInput.getText().toString();
-
+                //확인버튼
                 btnSuccess = (Button)innerView.findViewById(R.id.btnSuccess);
-
                 btnSuccess.setOnClickListener(new View.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onClick(View v) {
-
                         //프리퍼런스에 새로운 제이슨 오브젝트를 넣는다
 //                        addJsonObect(jObject);
                         String selectdKindsOfDatastored = spinner.getSelectedItem().toString();
@@ -173,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
 
                         alertDialog.dismiss();
                         Toast.makeText(context,"추가되었습니다",Toast.LENGTH_SHORT).show();
-
                     }
                 });
                 alertDialog.show();
@@ -181,12 +181,115 @@ public class MainActivity extends AppCompatActivity {
         });
         //
     }
+    //수정 삭제 ui만들것임
+    ListView.OnItemLongClickListener mOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+            new BottomSheet.Builder(context, R.style.MyBottomSheetStyle)
+                    .setSheet(R.menu.bottom_sheet)
+                    .setTitle("메뉴")
+                    .setListener(new BottomSheetListener() {
+                        @Override
+                        public void onSheetShown(@NonNull BottomSheet bottomSheet) {}
+                        @RequiresApi(api = Build.VERSION_CODES.N)
+                        @Override
+                        public void onSheetItemSelected(@NonNull BottomSheet bottomSheet, MenuItem menuItem) {
+                            //버튼 클릭에 따라 다름
+                            switch (menuItem.getItemId()){
+                                case R.id.editPhoneItem:
+                                    break;
+                                case R.id.deletePhoneItem:
+                                    int _id = mArrayListForUpdateDelete.get(position).get_id();
+                                    String kindsOfDatastore = mArrayListForUpdateDelete.get(position).getTelFromDataHelper();
+                                    Log.d(TAG,"_id : " + _id + ", " + "kindsOfDatastore : " + kindsOfDatastore);
+
+                                    phoneBookItemObject thisItem = (phoneBookItemObject)mListAdapter.getItem(position);
+                                    deleteData(_id,kindsOfDatastore,position);
+                                    mArrayListForUpdateDelete.remove(thisItem);
+                                    mListAdapter.remove(thisItem);
+                                    mListAdapter.notifyDataSetChanged();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        @Override
+                        public void onSheetDismissed(@NonNull BottomSheet bottomSheet, @DismissEvent int i) {}
+                    })
+                    .show();
+            return true;
+        }
+    };
+
+    /**
+     * 아이템 삭제 메소드
+     * @param _id
+     * @param kindsOfDatastore
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void deleteData(int _id, String kindsOfDatastore, int position){
+        switch (kindsOfDatastore){
+            case "SQLite":
+                DataBaseAdapter mDataBaseAdapter = new DataBaseAdapter(context);
+                mDataBaseAdapter.deletePhoneBookData(_id);
+                break;
+            case "Json":
+                JsonDataHelper mJsonDataHelper = new JsonDataHelper(context);
+                mJsonDataHelper.deleteJsonFile(_id);
+                mListAdapter.refreshData();
+                break;
+            case "XML":
+                XmlDataHelper mXmlDataHelper = new XmlDataHelper(context);
+                try {
+                    mXmlDataHelper.removeName(_id);
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                }
+                mListAdapter.refreshData();
+                break;
+            case "Preference":
+                PrefDataHelper mPrefDataHelper = new PrefDataHelper(context);
+                mPrefDataHelper.deleteJsonFileInPref(position);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * 아이템 업데이트 메소드
+     * @param _id
+     * @param name
+     * @param addr
+     * @param tel
+     * @param kindsOfDatastore
+     */
+    public void updateData(int _id, String name, String addr, String tel,String kindsOfDatastore ){
+        switch (kindsOfDatastore){
+            case "SQLite":
+                DataBaseAdapter mDataBaseAdapter = new DataBaseAdapter(context);
+                mDataBaseAdapter.updatePhoneBookData(_id,name,tel,addr,kindsOfDatastore);
+                break;
+            case "Json":
+                break;
+            case "XML":
+                break;
+            case "Preference":
+                break;
+            default:
+                break;
+        }
+    }
+
 
     public int makeAutoId(){
         //자체 프라이머리 id 만들기
         SharedPreferences mPrefs = context.getSharedPreferences("_id", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = mPrefs.edit();
-
 
         int current_id = mPrefs.getInt("_id",300);
 
@@ -198,13 +301,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         return next_id;
-    }
-    //새로운 json 오브젝트를 어레이에 넣는다
-    private void addJsonObect(JSONObject jsonObject){
-//        addedNewJsonData.put(jsonObject);
-        //임시
-//        PrefDataHelper mPrefDataHelper = new PrefDataHelper(context);
-//        mPrefDataHelper.saveJsonFileInPref(jsonObject);
     }
 
 
@@ -232,22 +328,18 @@ public class MainActivity extends AppCompatActivity {
         mgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    //일시중지 시점
+    //pause
     @Override
     protected void onPause() {
         super.onPause();
         Log.i(TAG,"--------------------------- onPause -----------------------");
-//        PrefDataHelper mPrefDataHelper = new PrefDataHelper(context);
-//        mPrefDataHelper.saveJsonFileInPref(addedNewJsonDataArray);
     }
 
-    //중지상태에서 풀려난 상태
+    //resume
     @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG,"--------------------------- onResume -----------------------");
-        PrefDataHelper mPrefDataHelper = new PrefDataHelper(context);
-//        mListAdapter.addJsonObject(mPrefDataHelper.getJsonFileFromPref());
     }
 }
 

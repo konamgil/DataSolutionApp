@@ -2,13 +2,17 @@ package com.dsa.total.datasolutionapp.DataHelper;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 
+import com.dsa.total.datasolutionapp.DataAdapter.ListAdapter;
 import com.dsa.total.datasolutionapp.DataTransferObject.phoneBookItemObject;
 import com.dsa.total.datasolutionapp.R;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -53,12 +57,11 @@ public class XmlDataHelper {
      * 생성자
      * @param context
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public XmlDataHelper(Context context) {
        this.mContext = context;
         this.mXmlArray =  new ArrayList<phoneBookItemObject>();
-//        addDataIntoXML();
         this.mXmlArray = xmlParser();
-
     }
 
     /**
@@ -80,13 +83,60 @@ public class XmlDataHelper {
         mPhoneBookItemObjects = new ArrayList<phoneBookItemObject>();
         mPhoneBookItemObjects.add(new phoneBookItemObject(_id,name,telNumber,addr,"XML"));
         addDataIntoXML();
-
-
     }
+
     /**
-     * assets 폴더의 xml 파일 가져와서 파싱하여 arraylist에 넘겨줍니다.
+     * person 엘리멘트 찾아서 person의 tagname이 받아온 _id와 일치하면 childnode를 remove 한다
+     * @param _id
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void removeName(int _id) throws ParserConfigurationException, IOException, SAXException{
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse (new File(mContext.getDataDir() +"/files/"+ XmlDataFileName));
+
+        NodeList nodes = doc.getElementsByTagName("person");
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Element person = (Element)nodes.item(i);
+            Element name = (Element)person.getElementsByTagName("_id").item(0);
+            String pName = name.getTextContent();
+            if(pName.equals(String.valueOf(_id))){
+                person.getParentNode().removeChild(person);
+            }
+        }
+
+        DOMSource source = new DOMSource(doc);
+
+        // writing xml file
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = null;
+        try {
+            transformer = transformerFactory.newTransformer();
+        } catch (TransformerConfigurationException e1) {
+            e1.printStackTrace();
+        }
+
+
+        File outputFile = new File(mContext.getFilesDir(),XmlDataFileName);
+        StreamResult result = new StreamResult(outputFile );
+        // creating output stream
+        try {
+            transformer.transform(source, result);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 첫 진입 assets 폴더의 xml 파일 가져와서 파싱하여 arraylist에 넘겨줍니다.
+     * 두번째 진입 부터는 패키지내의 files 폴더의 xml 파일을 가져와 파싱합니다
      * @return
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private ArrayList<phoneBookItemObject> xmlParser() {
         XmlPullParserFactory factory = null;
         XmlPullParser parser = null;
@@ -98,14 +148,21 @@ public class XmlDataHelper {
             factory.setNamespaceAware(true);
 
             parser = factory.newPullParser();
-//            InputStream is = mContext.getAssets().open(XmlDataFileName);
+            InputStream iss = null;
             FileInputStream is = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                is = new FileInputStream(mContext.getDataDir() +"/files/"+ XmlDataFileName);
+            ///////////////////////
+            File isFile = new File(mContext.getDataDir() +"/files/"+ XmlDataFileName);
+            if(isFile.exists() == false){
+                iss = mContext.getAssets().open(XmlDataFileName);
+                parser.setInput(iss,"UTF-8");
+                copyFileFromAssets();
+            } else {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    is = new FileInputStream(mContext.getDataDir() +"/files/"+ XmlDataFileName);
+                    parser.setInput(is,"UTF-8");
+                }
             }
 
-//            InputStream is = mContext.getResources().openRawResource(R.raw.xmlphonebook);
-            parser.setInput(is,"UTF-8");
             int eventType = parser.getEventType();
             phoneBookItemObject item = null;
 
@@ -159,6 +216,7 @@ public class XmlDataHelper {
     /**
      * add 후 초기화 후 getFilesDir() 에 저장
      */
+    @RequiresApi(api = Build.VERSION_CODES.FROYO)
     public void addDataIntoXML(){
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder = null;
@@ -167,12 +225,16 @@ public class XmlDataHelper {
         Element root = null;
         try {
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
+
+            //잠시 주석
             FileInputStream is = null;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 is = new FileInputStream(mContext.getDataDir() +"/files/"+ XmlDataFileName);
             }
-            //InputStream is = null; // 에셋에서 가져올때 썻었음
-            //is = mContext.getAssets().open(XmlDataFileName); // 에셋에서 가져올때 썻었음
+            //잠시 주석 풀기
+//            InputStream is = null; // 에셋에서 가져올때 썻었음
+//            is = mContext.getAssets().open(XmlDataFileName); // 에셋에서 가져올때 썻었음
+
             doc = documentBuilder.parse(is);
             root = doc.getDocumentElement();
         } catch (ParserConfigurationException e) {
@@ -182,9 +244,6 @@ public class XmlDataHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-//         mPhoneBookItemObjects = new ArrayList<phoneBookItemObject>();
-
 
         for(phoneBookItemObject item : mPhoneBookItemObjects ){
             Element newItem = doc.createElement("person");
@@ -224,12 +283,38 @@ public class XmlDataHelper {
         }
 
 
-        File outputFile = new File(mContext.getFilesDir(),"xmlphonebook.xml");
+        File outputFile = new File(mContext.getFilesDir(),XmlDataFileName);
         StreamResult result = new StreamResult(outputFile );
         // creating output stream
         try {
             transformer.transform(source, result);
         } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * assets의 xml 파일을 내부패키지 폴더로 복사하기
+     */
+    public void copyFileFromAssets() {
+        InputStream is = null;
+        FileOutputStream fos = null;
+        File outDir = new File("/data/data/com.dsa.total.datasolutionapp/files/");
+        outDir.mkdirs();
+
+        try {
+            is = mContext.getAssets().open(XmlDataFileName);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            File outfile = new File(outDir + "/" + XmlDataFileName);
+            fos = new FileOutputStream(outfile);
+            for (int c = is.read(buffer); c != -1; c = is.read(buffer)) {
+                fos.write(buffer, 0, c);
+            }
+            is.close();
+            fos.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

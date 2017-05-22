@@ -1,9 +1,9 @@
 package com.dsa.total.datasolutionapp.DataHelper;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.widget.Toast;
-
-import com.dsa.total.datasolutionapp.DataTransferObject.phoneBookItemObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,11 +12,11 @@ import org.json.JSONObject;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.util.ArrayList;
 
 /**
  * Created by konamgil on 2017-05-19.
@@ -35,24 +35,87 @@ public class JsonDataHelper {
      */
     public JsonDataHelper(Context context) {
         this.mContext = context;
-        this.rawDataFromJson = loadJSONFromAsset();
-
-        //json file 로부터 데이터 받아들임
-        try {
-
-            this.jarray = new JSONArray(rawDataFromJson);
-            this.jarray = getJsonData();
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        loadJSONFromAsset();
     }
 
 
-
+    /**
+     * json array에 jObject add하기
+     * @param jObject
+     */
     public void addJsonObjectatArray(JSONObject jObject){
+        //현재 jarray에 jobject를 put을 하고
         jarray.put(jObject);
+        //적용된 jarray를 파일로 출력한다
         saveJsonFile(jarray);
+    }
+
+
+    /**
+     * //_id 값 받아와서 jarray를 돌면서 일치하는 _id가 있으면 해당 오브젝트의 순서를 삭제
+     * @param _id
+     */
+    public void deleteJsonFile(int _id){
+        int len = jarray.length();
+        if(jarray != null){
+            for(int i=0; i<len; i++){
+                try {
+                    int _idKey = jarray.getJSONObject(i).getInt("_id");
+                    if(_idKey == _id){
+                        jarray.remove(i);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        saveJsonFile(jarray);
+    }
+
+
+    /**
+     * asset 폴더에 있는 json 파일을 로드한다
+     * @return 읽어들인 json 파일의 문자열 정보가 담겨있다
+     */
+    @TargetApi(Build.VERSION_CODES.N)
+    private void loadJSONFromAsset() {
+        String json = null;
+        FileInputStream is = null;
+        InputStream iss = null;
+        try {
+            File isFile = new File(mContext.getDataDir() +"/files/"+ JsonDataFileName);
+            if(isFile.exists() == false){
+                iss = mContext.getAssets().open(JsonDataFileName); //assets 에서 가져오기
+                int size = iss.available();
+                byte[] buffer = new byte[size];
+                iss.read(buffer);
+                iss.close();
+                json = new String(buffer, "UTF-8");
+
+                File file = new File(mContext.getDataDir() +"/files/");
+
+                if( !file.exists() ) {  // 원하는 경로에 폴더가 있는지 확인
+                    file.mkdirs();
+                }
+                copyFileFromAssets();
+            }else {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    is = new FileInputStream(mContext.getDataDir() +"/files/"+ JsonDataFileName);
+                    int size = is.available();
+                    byte[] buffer = new byte[size];
+                    is.read(buffer);
+                    is.close();
+                    json = new String(buffer, "UTF-8");
+                }
+            }
+
+            jarray = new JSONArray(json);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -61,33 +124,6 @@ public class JsonDataHelper {
      */
     public JSONArray getJsonData(){
         return jarray;
-    }
-
-    /**
-     * asset 폴더에 있는 json 파일을 로드한다
-     * @return 읽어들인 json 파일의 문자열 정보가 담겨있다
-     */
-    private String loadJSONFromAsset() {
-        String json = null;
-        try {
-
-//            InputStream is = mContext.getAssets().open(JsonDataFileName); //assets 에서 가져오기
-            FileInputStream is = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                is = new FileInputStream(mContext.getDataDir() +"/files/"+ JsonDataFileName);
-            }
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        return json;
-
     }
 
     /**
@@ -111,6 +147,10 @@ public class JsonDataHelper {
         return jObject;
     }
 
+    /**
+     * 인자 값으로 받은 jarray 를 폴더에 파일로 출력 저장한다
+     * @param mjarray
+     */
     public void saveJsonFile(JSONArray mjarray){
         try {
             Writer output = null;
@@ -128,4 +168,31 @@ public class JsonDataHelper {
         }
     }
 
+    /**
+     * assets의 제이슨 파일을 내부패키지 폴더로 복사하기
+     */
+    public void copyFileFromAssets() {
+        InputStream is = null;
+        FileOutputStream fos = null;
+        File outDir = new File("/data/data/com.dsa.total.datasolutionapp/files/");
+        outDir.mkdirs();
+
+        try {
+            is = mContext.getAssets().open(JsonDataFileName);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            File outfile = new File(outDir + "/" + JsonDataFileName);
+            fos = new FileOutputStream(outfile);
+            for (int c = is.read(buffer); c != -1; c = is.read(buffer)) {
+                fos.write(buffer, 0, c);
+            }
+            is.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
+
+

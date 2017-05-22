@@ -2,6 +2,8 @@ package com.dsa.total.datasolutionapp.DataAdapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +56,7 @@ public class ListAdapter extends BaseAdapter {
      * 생성자
      * @param context
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public ListAdapter(Context context) {
         this.mContext = context;
         this.inflater = LayoutInflater.from(context);
@@ -82,6 +85,10 @@ public class ListAdapter extends BaseAdapter {
         this.arraylist.addAll(phoneBookList);
     }
 
+    public ArrayList getAllDataList(){
+        return this.arraylist;
+    }
+
     /**
      * 새로 추가되는 jsonobject를 여벌의 list에 담는다
      * @param jObject
@@ -103,17 +110,17 @@ public class ListAdapter extends BaseAdapter {
     private void addObjectSecondList(int _id, String name, String addr, String tel, String telFromDataHelper){
         arraylist.add(new phoneBookItemObject(_id,name,addr,tel,telFromDataHelper));
     }
-
+    //두번째 여벌의 arraylist에 삭제
+    private void removeObjectSecondList(phoneBookItemObject itemObject){
+        arraylist.remove(itemObject);
+    }
     /**
      * dataArray(제이슨 어레이로부터 제이슨 오브젝트를 하나하나 리스트에 add를 한다
      */
     public void addJsonObject(JSONObject jObject){
 
-        //읽어들인 jsonaraay에 새로운 jsonobject를 담는다
+        //읽어들인 jsonaraay에 새로운 jsonobject를 담고 json 파일을 저장한다
         jsonDataHelper.addJsonObjectatArray(jObject);
-
-        //여벌의 arraylist에 담는다
-        addObjectSecondList(jObject);
 
         //기존 phonebooklist를 클리어 하고
         phoneBookList.clear();
@@ -130,6 +137,31 @@ public class ListAdapter extends BaseAdapter {
         //새롭게 phonecBookList를 pref로부터 불러온다
         getDataListFromPref();
 
+        //클리어 후 여벌 리스트에 복사
+        arraylist.clear();
+        arraylist.addAll(phoneBookList);
+        //데이터 구성의 변경이 있음을 아답터에게 알리고 리스트뷰를 갱신하도록 한다
+        notifyDataSetChanged();
+    }
+
+    public void refreshData(){
+
+        phoneBookList.clear();
+        arraylist.clear();
+
+        //새롭게 phoneBookList를 json으로부터 불러온다
+        getDataListFromJson();
+
+        //새롭게 phoneBookList를 sql로부터 불러온다
+        getDataListFromSQLite();
+
+        //새롭게  phoneBookList를 xml로부터 불러온다
+        getDataListFromXML();
+
+        //새롭게 phonecBookList를 pref로부터 불러온다
+        getDataListFromPref();
+
+        arraylist.addAll(phoneBookList);
 
         //데이터 구성의 변경이 있음을 아답터에게 알리고 리스트뷰를 갱신하도록 한다
         notifyDataSetChanged();
@@ -141,7 +173,7 @@ public class ListAdapter extends BaseAdapter {
     public void getDataListFromJson(){
         //json 데이터 처리 부분
 
-        JSONArray dataArray = jsonDataHelper.getJsonData();
+        JSONArray dataArray = new JsonDataHelper(mContext).getJsonData();
         //json end
         // 테스트 데이터
         // dataArray.put(jsonDataHelper.addJsonFile("고남길","부산","010"));
@@ -187,15 +219,17 @@ public class ListAdapter extends BaseAdapter {
     }
 
     /**
-     * xml로 파일로 부터 데이터 가져와서 phonebooklist에 담기
+     * xml로 파일로 부터 데이터 가져와서 phonebookList에 담기
      */
-    private void getDataListFromXML(){
+    public void getDataListFromXML(){
         ArrayList<phoneBookItemObject> xmlDataFromXML = xmlDataHelper.getXmlData();
         phoneBookList.addAll(xmlDataFromXML);
     }
 
+    /**
+     * Pref로 부터 데이터 가져와서 phoneBookList에 담기
+     */
     private void getDataListFromPref(){
-//        ArrayList<phoneBookItemObject> prefDataFromPref = prefDataHelper.getJsonFileFromPref();
         ArrayList<phoneBookItemObject> prefDataFromPref = prefDataHelper.getJsonFileFromPref();
         phoneBookList.addAll(prefDataFromPref);
     }
@@ -281,6 +315,12 @@ public class ListAdapter extends BaseAdapter {
     public void add(int _id, String name, String addr, String tel, String dataStore){
         addObjectSecondList(_id, name, addr, tel, dataStore);
         phoneBookList.add(new phoneBookItemObject(_id,name,addr,tel,dataStore));
+        notifyDataSetChanged();
+    }
+
+    public void remove(phoneBookItemObject item){
+        removeObjectSecondList(item);
+        phoneBookList.remove(item);
         notifyDataSetChanged();
     }
 
