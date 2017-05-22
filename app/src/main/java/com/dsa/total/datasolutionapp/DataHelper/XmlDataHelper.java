@@ -57,7 +57,6 @@ public class XmlDataHelper {
      * 생성자
      * @param context
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public XmlDataHelper(Context context) {
        this.mContext = context;
         this.mXmlArray =  new ArrayList<phoneBookItemObject>();
@@ -79,9 +78,9 @@ public class XmlDataHelper {
      * @param telNumber
      * @param addr
      */
-    public void insertXmlData(int _id, String name, String telNumber, String addr){
+    public void insertXmlData(int _id, String name, String telNumber, String addr, String dataStore){
         mPhoneBookItemObjects = new ArrayList<phoneBookItemObject>();
-        mPhoneBookItemObjects.add(new phoneBookItemObject(_id,name,telNumber,addr,"XML"));
+        mPhoneBookItemObjects.add(new phoneBookItemObject(_id,name,telNumber,addr,dataStore));
         addDataIntoXML();
     }
 
@@ -92,11 +91,10 @@ public class XmlDataHelper {
      * @throws IOException
      * @throws SAXException
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void removeName(int _id) throws ParserConfigurationException, IOException, SAXException{
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-        Document doc = docBuilder.parse (new File(mContext.getDataDir() +"/files/"+ XmlDataFileName));
+        Document doc = docBuilder.parse (new File(mContext.getFilesDir() +"/"+ XmlDataFileName));
 
         NodeList nodes = doc.getElementsByTagName("person");
         for (int i = 0; i < nodes.getLength(); i++) {
@@ -136,7 +134,6 @@ public class XmlDataHelper {
      * 두번째 진입 부터는 패키지내의 files 폴더의 xml 파일을 가져와 파싱합니다
      * @return
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private ArrayList<phoneBookItemObject> xmlParser() {
         XmlPullParserFactory factory = null;
         XmlPullParser parser = null;
@@ -151,16 +148,14 @@ public class XmlDataHelper {
             InputStream iss = null;
             FileInputStream is = null;
             ///////////////////////
-            File isFile = new File(mContext.getDataDir() +"/files/"+ XmlDataFileName);
+            File isFile = new File(mContext.getFilesDir() +"/"+ XmlDataFileName);
             if(isFile.exists() == false){
                 iss = mContext.getAssets().open(XmlDataFileName);
                 parser.setInput(iss,"UTF-8");
                 copyFileFromAssets();
             } else {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    is = new FileInputStream(mContext.getDataDir() +"/files/"+ XmlDataFileName);
+                    is = new FileInputStream(mContext.getFilesDir() +"/"+ XmlDataFileName);
                     parser.setInput(is,"UTF-8");
-                }
             }
 
             int eventType = parser.getEventType();
@@ -191,6 +186,7 @@ public class XmlDataHelper {
                         }
                         break;
                     case XmlPullParser.END_TAG:
+
                         String endTag = parser.getName();
                         if(endTag.equals("person")) {
                             arrayList.add(item);
@@ -216,7 +212,6 @@ public class XmlDataHelper {
     /**
      * add 후 초기화 후 getFilesDir() 에 저장
      */
-    @RequiresApi(api = Build.VERSION_CODES.FROYO)
     public void addDataIntoXML(){
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder = null;
@@ -228,9 +223,7 @@ public class XmlDataHelper {
 
             //잠시 주석
             FileInputStream is = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                is = new FileInputStream(mContext.getDataDir() +"/files/"+ XmlDataFileName);
-            }
+            is = new FileInputStream(mContext.getFilesDir() +"/"+ XmlDataFileName);
             //잠시 주석 풀기
 //            InputStream is = null; // 에셋에서 가져올때 썻었음
 //            is = mContext.getAssets().open(XmlDataFileName); // 에셋에서 가져올때 썻었음
@@ -283,7 +276,7 @@ public class XmlDataHelper {
         }
 
 
-        File outputFile = new File(mContext.getFilesDir(),XmlDataFileName);
+        File outputFile = new File(mContext.getFilesDir() +"/"+ XmlDataFileName);
         StreamResult result = new StreamResult(outputFile );
         // creating output stream
         try {
@@ -299,7 +292,7 @@ public class XmlDataHelper {
     public void copyFileFromAssets() {
         InputStream is = null;
         FileOutputStream fos = null;
-        File outDir = new File("/data/data/com.dsa.total.datasolutionapp/files/");
+        File outDir = new File(mContext.getFilesDir() +"/");
         outDir.mkdirs();
 
         try {
@@ -314,7 +307,6 @@ public class XmlDataHelper {
             is.close();
             fos.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

@@ -56,7 +56,6 @@ public class ListAdapter extends BaseAdapter {
      * 생성자
      * @param context
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public ListAdapter(Context context) {
         this.mContext = context;
         this.inflater = LayoutInflater.from(context);

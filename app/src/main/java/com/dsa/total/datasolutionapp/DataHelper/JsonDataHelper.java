@@ -77,13 +77,12 @@ public class JsonDataHelper {
      * asset 폴더에 있는 json 파일을 로드한다
      * @return 읽어들인 json 파일의 문자열 정보가 담겨있다
      */
-    @TargetApi(Build.VERSION_CODES.N)
     private void loadJSONFromAsset() {
         String json = null;
         FileInputStream is = null;
         InputStream iss = null;
         try {
-            File isFile = new File(mContext.getDataDir() +"/files/"+ JsonDataFileName);
+            File isFile = new File(mContext.getFilesDir() +"/"+ JsonDataFileName);
             if(isFile.exists() == false){
                 iss = mContext.getAssets().open(JsonDataFileName); //assets 에서 가져오기
                 int size = iss.available();
@@ -92,7 +91,7 @@ public class JsonDataHelper {
                 iss.close();
                 json = new String(buffer, "UTF-8");
 
-                File file = new File(mContext.getDataDir() +"/files/");
+                File file = new File(mContext.getFilesDir() +"/");
 
                 if( !file.exists() ) {  // 원하는 경로에 폴더가 있는지 확인
                     file.mkdirs();
@@ -100,7 +99,7 @@ public class JsonDataHelper {
                 copyFileFromAssets();
             }else {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    is = new FileInputStream(mContext.getDataDir() +"/files/"+ JsonDataFileName);
+                    is = new FileInputStream(mContext.getFilesDir() +"/"+ JsonDataFileName);
                     int size = is.available();
                     byte[] buffer = new byte[size];
                     is.read(buffer);
@@ -156,7 +155,7 @@ public class JsonDataHelper {
             Writer output = null;
             File file = null;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                file = new File(mContext.getDataDir() +"/files/"+ JsonDataFileName);
+                file = new File(mContext.getFilesDir() +"/"+ JsonDataFileName);
             }
             output = new BufferedWriter(new FileWriter(file));
             output.write(mjarray.toString());
@@ -174,7 +173,7 @@ public class JsonDataHelper {
     public void copyFileFromAssets() {
         InputStream is = null;
         FileOutputStream fos = null;
-        File outDir = new File("/data/data/com.dsa.total.datasolutionapp/files/");
+        File outDir = new File(mContext.getFilesDir() +"/");
         outDir.mkdirs();
 
         try {

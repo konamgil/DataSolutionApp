@@ -131,41 +131,42 @@ public class MainActivity extends AppCompatActivity {
                 //확인버튼
                 btnSuccess = (Button)innerView.findViewById(R.id.btnSuccess);
                 btnSuccess.setOnClickListener(new View.OnClickListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onClick(View v) {
-                        //프리퍼런스에 새로운 제이슨 오브젝트를 넣는다
-//                        addJsonObect(jObject);
+
+                        String name = etNameInput.getText().toString();
+                        String addr = etAddrInput.getText().toString();
+                        String phone = etPhoneInput.getText().toString();
+
                         String selectdKindsOfDatastored = spinner.getSelectedItem().toString();
                         switch(selectdKindsOfDatastored){
                             case "SQLite":
                                 DataBaseAdapter mDataBaseAdapter = new DataBaseAdapter(context);
                                 int uid = makeAutoId();
-//                                phoneBookItemObject item = new phoneBookItemObject(uid,etNameInput.getText().toString(),etAddrInput.getText().toString(),etPhoneInput.getText().toString(),"SQLite");
-                                mDataBaseAdapter.insertPhoneBookData(uid,etNameInput.getText().toString(),etAddrInput.getText().toString(),etPhoneInput.getText().toString(),"SQLite");
-                                mListAdapter.add(uid,etNameInput.getText().toString(),etAddrInput.getText().toString(),etPhoneInput.getText().toString(),"SQLite");
+                                mDataBaseAdapter.insertPhoneBookData(uid,name,addr,phone,"SQLite");
+                                mListAdapter.add(uid,name,addr,phone,"SQLite");
                                 Toast.makeText(context,"SQLite",Toast.LENGTH_SHORT).show();
                                 break;
                             case "Json":
                                 //jsonhelper 열기
                                 JsonDataHelper jsonDataHelper = new JsonDataHelper(context);
                                 //입력받은 값으로 제이슨 오브젝트를 만든다
-                                JSONObject jObject = jsonDataHelper.makeJsonObject(makeAutoId(),etNameInput.getText().toString(),etAddrInput.getText().toString(),etPhoneInput.getText().toString(),"Json");
+                                JSONObject jObject = jsonDataHelper.makeJsonObject(makeAutoId(),name,addr,phone,"Json");
                                 mListAdapter.addJsonObject(jObject);
                                 Toast.makeText(context,"Json",Toast.LENGTH_SHORT).show();
                                 break;
                             case "XML":
                                 int xml_id = makeAutoId();
                                 XmlDataHelper xmlDataHelper = new XmlDataHelper(context);
-                                xmlDataHelper.insertXmlData(xml_id,etNameInput.getText().toString(),etAddrInput.getText().toString(),etPhoneInput.getText().toString());
-                                mListAdapter.add(xml_id,etNameInput.getText().toString(),etAddrInput.getText().toString(),etPhoneInput.getText().toString(),"XML");
+                                xmlDataHelper.insertXmlData(xml_id,name,addr,phone,"XML");
+                                mListAdapter.add(xml_id,name,addr,phone,"XML");
                                 Toast.makeText(context,"XML",Toast.LENGTH_SHORT).show();
                                 break;
                             case "Preference":
                                 int preference_id = makeAutoId();
                                 PrefDataHelper prefDataHelper = new PrefDataHelper(context);
-                                prefDataHelper.saveJsonFileInPref(preference_id,etNameInput.getText().toString(),etAddrInput.getText().toString(),etPhoneInput.getText().toString());
-                                mListAdapter.add(preference_id,etNameInput.getText().toString(),etAddrInput.getText().toString(),etPhoneInput.getText().toString(),"Preference");
+                                prefDataHelper.saveJsonFileInPref(preference_id,name,addr,phone,"Preference");
+                                mListAdapter.add(preference_id,name,addr,phone,"Preference");
                                 Toast.makeText(context,"Preference",Toast.LENGTH_SHORT).show();
                                 break;
                             default:
@@ -204,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
                                     Log.d(TAG,"_id : " + _id + ", " + "kindsOfDatastore : " + kindsOfDatastore);
 
                                     phoneBookItemObject thisItem = (phoneBookItemObject)mListAdapter.getItem(position);
-                                    deleteData(_id,kindsOfDatastore,position);
+                                    deleteData(_id,kindsOfDatastore);
                                     mArrayListForUpdateDelete.remove(thisItem);
                                     mListAdapter.remove(thisItem);
                                     mListAdapter.notifyDataSetChanged();
@@ -227,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
      * @param kindsOfDatastore
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void deleteData(int _id, String kindsOfDatastore, int position){
+    public void deleteData(int _id, String kindsOfDatastore){
         switch (kindsOfDatastore){
             case "SQLite":
                 DataBaseAdapter mDataBaseAdapter = new DataBaseAdapter(context);
@@ -253,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "Preference":
                 PrefDataHelper mPrefDataHelper = new PrefDataHelper(context);
-                mPrefDataHelper.deleteJsonFileInPref(position);
+                mPrefDataHelper.deleteItemFromInPref(_id);
                 break;
             default:
                 break;

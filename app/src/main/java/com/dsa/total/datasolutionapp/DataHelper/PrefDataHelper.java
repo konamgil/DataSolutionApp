@@ -46,18 +46,24 @@ public class PrefDataHelper {
         editor = mPrefs.edit();
     }
 
-    //삭제
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void deleteJsonFileInPref(int position){
+    /**
+     * id를 이용한 프리프 삭제
+     * @param _id
+     */
+    public void deleteItemFromInPref(int _id){
 
         String strPref = mPrefs.getString("MyJson", null);
         Gson gson = new Gson();
 
         List<phoneBookItemObject> sectionlist = gson.fromJson(strPref, new TypeToken<List<phoneBookItemObject>>(){}.getType());
         ArrayList<phoneBookItemObject> itemArrayList = new ArrayList<phoneBookItemObject>(sectionlist);
-        ListAdapter mListAdapter = new ListAdapter(mContext);
-        phoneBookItemObject thisItem = (phoneBookItemObject)mListAdapter.getItem(position);
-        itemArrayList.remove(thisItem);
+
+        int len = itemArrayList.size();
+        for(int i=0; i<len; i++){
+            if(itemArrayList.get(i).get_id() == _id){
+                itemArrayList.remove(i);
+            }
+        }
 
         String json = gson.toJson(itemArrayList);
         editor.putString("MyJson", json);
@@ -67,20 +73,20 @@ public class PrefDataHelper {
     /**
      *  프리퍼런스에 json 로 바꾸어 저장한다
      */
-    public void saveJsonFileInPref(int _id, String telName,String telNumber, String telAddress){
+    public void saveJsonFileInPref(int _id, String telName,String telNumber, String telAddress, String dataStore){
 
         Gson gson = new Gson();
         String result = mPrefs.getString("MyJson","");
         List<phoneBookItemObject> sectionlist = null;
         ArrayList<phoneBookItemObject> itemArrayList = new ArrayList<phoneBookItemObject>();
 
-        if(result.equals("[]")){
+        if(result.equals("[]") || result.equals("")){
             editor.putString("MyJson", "");
             editor.commit();
             String json = gson.toJson(itemArrayList);
             sectionlist = gson.fromJson(json, new TypeToken<List<phoneBookItemObject>>(){}.getType());
             itemArrayList = new ArrayList<phoneBookItemObject>(sectionlist);
-            itemArrayList.add(new phoneBookItemObject(_id,telName,telNumber,telAddress,"Preference"));
+            itemArrayList.add(new phoneBookItemObject(_id,telName,telNumber,telAddress, dataStore));
         }
 
         String json = gson.toJson(itemArrayList);
