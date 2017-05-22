@@ -29,40 +29,12 @@ public class phoneBookItemObject {
      * @param telAddress
      * @param telFromDataHelper
      */
-    public phoneBookItemObject(int _id, String telName, String telNumber, String telAddress, String telFromDataHelper) {
+    public phoneBookItemObject(int _id, String telName, String telAddress, String telNumber,  String telFromDataHelper) {
         this._id = _id;
         this.telName = telName;
-        this.telNumber = telNumber;
         this.telAddress = telAddress;
+        this.telNumber = telNumber;
         this.telFromDataHelper = telFromDataHelper;
-    }
-
-    /**
-     * id 없이 정보만 가져와서 생성자를 초기화 한다
-     * 생성자
-     * @param telName
-     * @param telNumber
-     * @param telAddress
-     * @param telFromDataHelper
-     */
-    public phoneBookItemObject(String telName, String telNumber, String telAddress, String telFromDataHelper) {
-        this.telName = telName;
-        this.telNumber = telNumber;
-        this.telAddress = telAddress;
-        this.telFromDataHelper = telFromDataHelper;
-    }
-
-    /**
-     * 현재 json 파일로부터 세개의 필드만 받아와서 초기화하고있다(안쓰고있음)
-     * @param telName
-     * @param telNumber
-     * @param telAddress
-     */
-    public phoneBookItemObject(String telName, String telNumber, String telAddress) {
-        this.telName = telName;
-        this.telNumber = telNumber;
-        this.telAddress = telAddress;
-        this.telName = telName;
     }
 
     public phoneBookItemObject() {

@@ -3,7 +3,7 @@
     <person>
         <_id>500</_id>
         <name>고남길</name>
-        <phone>01072553466</phone>
+        <phone>010-7255-3466</phone>
         <addr>서울 송파구</addr>
         <telFromDataHelper>XML</telFromDataHelper>
     </person>
@@ -11,7 +11,7 @@
     <person>
         <_id>501</_id>
         <name>고은별</name>
-        <phone>01096263466</phone>
+        <phone>010-9627-3466</phone>
         <addr>서울 광진구</addr>
         <telFromDataHelper>XML</telFromDataHelper>
     </person>
@@ -19,7 +19,7 @@
     <person>
         <_id>503</_id>
         <name>최가영</name>
-        <phone>01033798546</phone>
+        <phone>010-3379-8546</phone>
         <addr>경기도 의정부</addr>
         <telFromDataHelper>XML</telFromDataHelper>
     </person>

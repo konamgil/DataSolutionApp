@@ -85,6 +85,84 @@ public class XmlDataHelper {
     }
 
     /**
+     *
+     * @param _id
+     * @param name
+     * @param telNumber
+     * @param addr
+     * @param dataStore
+     */
+    public void updateXmlData(int _id, String name,  String addr, String telNumber, String dataStore) throws ParserConfigurationException, IOException, SAXException{
+
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+        Document doc = null;
+        try {
+            doc = docBuilder.parse (new File(mContext.getFilesDir() +"/"+ XmlDataFileName));
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ////////////////////////////////////
+        Element root = doc.getDocumentElement();
+        NodeList nodes = doc.getElementsByTagName("person");
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Element person = (Element)nodes.item(i);
+            Element beforname = (Element)person.getElementsByTagName("_id").item(0);
+            String pName = beforname.getTextContent();
+            if(pName.equals(String.valueOf(_id))){
+
+                Element newItem = doc.createElement("person");
+
+                Element _id_el = doc.createElement("_id");
+                _id_el.appendChild(doc.createTextNode(String.valueOf(_id)));
+                newItem.appendChild(_id_el);
+
+                Element name_el = doc.createElement("name");
+                name_el.appendChild(doc.createTextNode(name));
+                newItem.appendChild(name_el);
+
+                Element addr_el = doc.createElement("addr");
+                addr_el.appendChild(doc.createTextNode(addr));
+                newItem.appendChild(addr_el);
+
+                Element phone_el = doc.createElement("phone");
+                phone_el.appendChild(doc.createTextNode(telNumber));
+                newItem.appendChild(phone_el);
+
+                Element telFromDataHelper_el = doc.createElement("telFromDataHelper");
+                telFromDataHelper_el.appendChild(doc.createTextNode(dataStore));
+                newItem.appendChild(telFromDataHelper_el);
+
+                root.replaceChild(newItem,person);
+            }
+        }
+
+        DOMSource source = new DOMSource(doc);
+
+        // writing xml file
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = null;
+        try {
+            transformer = transformerFactory.newTransformer();
+        } catch (TransformerConfigurationException e1) {
+            e1.printStackTrace();
+        }
+
+
+        File outputFile = new File(mContext.getFilesDir(),XmlDataFileName);
+        StreamResult result = new StreamResult(outputFile );
+        // creating output stream
+        try {
+            transformer.transform(source, result);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /////////////////////////////////////
+    /**
      * person 엘리멘트 찾아서 person의 tagname이 받아온 _id와 일치하면 childnode를 remove 한다
      * @param _id
      * @throws ParserConfigurationException

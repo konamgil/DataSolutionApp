@@ -113,6 +113,10 @@ public class ListAdapter extends BaseAdapter {
     private void removeObjectSecondList(phoneBookItemObject itemObject){
         arraylist.remove(itemObject);
     }
+    //두번째 여벌의 arraylist에 수정
+    private void setObjectSecondList(int pos, phoneBookItemObject itemObject){
+        arraylist.set(pos, itemObject);
+    }
     /**
      * dataArray(제이슨 어레이로부터 제이슨 오브젝트를 하나하나 리스트에 add를 한다
      */
@@ -185,7 +189,7 @@ public class ListAdapter extends BaseAdapter {
                 String tel = jObject.getString("tel");
                 String telFromDataHelper = jObject.getString("telFromDataHelper");
 
-                phoneBookList.add(new phoneBookItemObject(_id,name,tel,addr,telFromDataHelper));
+                phoneBookList.add(new phoneBookItemObject(_id,name,addr,tel,telFromDataHelper));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -208,11 +212,11 @@ public class ListAdapter extends BaseAdapter {
             //db 필드 담아와서 각 변수에 대입
             int _id = getCursorFromSQLite.getInt(0);
             String telName = getCursorFromSQLite.getString(1);
-            String telNumber = getCursorFromSQLite.getString(2);
-            String telAddress = getCursorFromSQLite.getString(3);
+            String telAddress = getCursorFromSQLite.getString(2);
+            String telNumber = getCursorFromSQLite.getString(3);
             String telFromDataHelper = getCursorFromSQLite.getString(4);
 
-            phoneBookList.add(new phoneBookItemObject(_id,telName,telNumber,telAddress,telFromDataHelper));
+            phoneBookList.add(new phoneBookItemObject(_id,telName,telAddress,telNumber,telFromDataHelper));
         }
         dataBaseAdapter.close();
     }
@@ -317,12 +321,25 @@ public class ListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    /**
+     * item 삭제
+     * @param item
+     */
     public void remove(phoneBookItemObject item){
         removeObjectSecondList(item);
         phoneBookList.remove(item);
         notifyDataSetChanged();
     }
 
+    /**
+     * item 수정
+     * @param item
+     */
+    public void set(int pos, phoneBookItemObject item){
+        setObjectSecondList(pos, item);
+        phoneBookList.set(pos, item);
+        notifyDataSetChanged();
+    }
 
     /**
      * editText 필터링 하는 기능이다

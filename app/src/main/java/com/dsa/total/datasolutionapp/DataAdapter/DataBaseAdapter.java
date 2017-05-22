@@ -100,12 +100,11 @@ public class DataBaseAdapter {
             throw mSQLException;
         }
     }
-
-    public void insertPhoneBookData(int _id, String telName, String telNumber, String telAddress, String telFromDataHelper){
+    public void insertPhoneBookData(int _id, String telName, String telAddress, String telNumber, String telFromDataHelper){
             try {
 
                 mDb = mDbHelper.getWritableDatabase();
-                String sql = "INSERT INTO phonebook (_id, telName, telNumber, telAddress,telFromDataHelper) VALUES ('"+_id+"', '"+telName+"', '"+telNumber+"', '"+telAddress+"', '"+telFromDataHelper+"' );";
+                String sql = "INSERT INTO phonebook (_id, telName, telAddress, telNumber, telFromDataHelper) VALUES ('"+_id+"', '"+telName+"', '"+telAddress+"', '"+telNumber+"', '"+telFromDataHelper+"' );";
 //                String sql = "INSERT INTO phonebook (_id, telName, telNumber, telAddress,telFromDataHelper) VALUES (101, '고남길', '01072553466', '서울시 송파구 거여동', 'SQLite' );";
                 mDb.execSQL(sql);
                 mDbHelper.close();
@@ -117,11 +116,11 @@ public class DataBaseAdapter {
             }
     }
 
-    public void updatePhoneBookData(int _id, String telName, String telNumber, String telAddress, String telFromDataHelper){
+    public void updatePhoneBookData(int _id, String telName, String telAddress, String telNumber,  String telFromDataHelper){
             try {
 
                 mDb = mDbHelper.getWritableDatabase();
-                String sql = "UPDATE phonebook SET telName = '"+telName+"', telNumber = '"+telNumber+"', telAddress = '"+telAddress+"', telFromDataHelper = 'SQLITE' WHERE _id = "+_id+";";
+                String sql = "UPDATE phonebook SET telName = '"+telName+"', telAddress = '"+telAddress+"', telNumber = '"+telNumber+"', telFromDataHelper = 'SQLITE' WHERE _id = "+_id+";";
                 mDb.execSQL(sql);
                 mDbHelper.close();
 

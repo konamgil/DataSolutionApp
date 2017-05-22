@@ -100,7 +100,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         //테이블 만들기
         db.execSQL("CREATE TABLE phonebook (_id INTEGER PRIMARY KEY NOT NULL," +
-                    "telName TEXT,telNumber TEXT,telAddress TEXT,telFromDataHelper  TEXT);");
+                    "telName TEXT,telAddress TEXT,telNumber TEXT,telFromDataHelper  TEXT);");
     }
 
     @Override

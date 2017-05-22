@@ -1,21 +1,21 @@
 [
   { "_id" : 1,
     "name":"배트맨",
-    "tel":"01012345678",
+    "tel":"010-1234-5678",
     "addr":"고담",
     "telFromDataHelper" : "Json"
     },
 
   { "_id" : 2,
     "name":"슈퍼맨",
-    "tel":"0178895441",
+    "tel":"011-8895-7741",
     "addr":"뉴욕",
     "telFromDataHelper":"Json"
     },
 
   { "_id" : 3,
     "name":"앤트맨",
-    "tel":"01096115315",
+    "tel":"010-9611-5315",
     "addr":"LA",
     "telFromDataHelper":"Json"
     }

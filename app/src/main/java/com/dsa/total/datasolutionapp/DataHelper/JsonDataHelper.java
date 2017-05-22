@@ -28,7 +28,6 @@ public class JsonDataHelper {
     //assets 폴더에 있는 json 파일의 이름이다
     private String JsonDataFileName = "jsonphonebook.json";
     private JSONArray jarray = null;
-    private String rawDataFromJson = null;
     /**
      * 생성자
      * @param context
@@ -72,6 +71,33 @@ public class JsonDataHelper {
         saveJsonFile(jarray);
     }
 
+    /**
+     * 수정
+     * @param _id_edit
+     * @param getName
+     * @param getAddr
+     * @param getTell
+     * @param selectedDataStore
+     */
+    public void updateJsonFile(int _id_edit, String getName, String getAddr, String getTell, String selectedDataStore){
+        JSONObject jObject = makeJsonObject(_id_edit, getName, getAddr, getTell,selectedDataStore);
+
+        int len = jarray.length();
+        if(jarray != null){
+            for(int i=0; i<len; i++){
+                try {
+                    int _idKey = jarray.getJSONObject(i).getInt("_id");
+                    if(_idKey == _id_edit){
+                        jarray.remove(i);
+                        jarray.put(i,jObject);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        saveJsonFile(jarray);
+    }
 
     /**
      * asset 폴더에 있는 json 파일을 로드한다
@@ -98,14 +124,12 @@ public class JsonDataHelper {
                 }
                 copyFileFromAssets();
             }else {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                     is = new FileInputStream(mContext.getFilesDir() +"/"+ JsonDataFileName);
                     int size = is.available();
                     byte[] buffer = new byte[size];
                     is.read(buffer);
                     is.close();
                     json = new String(buffer, "UTF-8");
-                }
             }
 
             jarray = new JSONArray(json);
@@ -136,8 +160,8 @@ public class JsonDataHelper {
         JSONObject jObject = new JSONObject();
         try {
             jObject.put("_id", _id);
-            jObject.put("name" ,name);
             jObject.put("addr" ,addr);
+            jObject.put("name" ,name);
             jObject.put("tel" ,tel);
             jObject.put("telFromDataHelper",Json);
         }catch (Exception e){
