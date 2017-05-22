@@ -70,6 +70,25 @@ public class PrefDataHelper {
         editor.commit();
 
     }
+
+    public void updateItemFromInPref(int _id, String name,  String addr, String telNumber, String dataStore){
+        String strPref = mPrefs.getString("MyJson", null);
+        Gson gson = new Gson();
+
+        List<phoneBookItemObject> sectionlist = gson.fromJson(strPref, new TypeToken<List<phoneBookItemObject>>(){}.getType());
+        ArrayList<phoneBookItemObject> itemArrayList = new ArrayList<phoneBookItemObject>(sectionlist);
+
+        int len = itemArrayList.size();
+        for(int i=0; i<len; i++){
+            if(itemArrayList.get(i).get_id() == _id){
+                itemArrayList.set(i,new phoneBookItemObject(_id,name,telNumber,addr, dataStore));
+            }
+        }
+
+        String json = gson.toJson(itemArrayList);
+        editor.putString("MyJson", json);
+        editor.commit();
+    }
     /**
      *  프리퍼런스에 json 로 바꾸어 저장한다
      */

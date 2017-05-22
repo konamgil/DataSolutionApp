@@ -378,6 +378,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case "Preference":
                         PrefDataHelper mPrefDataHelper = new PrefDataHelper(context);
+                        mPrefDataHelper.updateItemFromInPref(_id_edit, getName, getAddr, getTell, selectedDataStore);
                         break;
                 }
                 phoneBookItemObject setItem = new phoneBookItemObject(_id_edit, getName, getAddr, getTell, selectedDataStore);

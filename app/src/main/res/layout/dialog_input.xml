@@ -56,6 +56,7 @@
             android:layout_weight="6"
             android:maxLines="1"
             android:text=""
+            android:inputType="phone"
             android:textSize="15dp"
             android:textStyle="bold" />
     </LinearLayout>
