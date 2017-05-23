@@ -116,9 +116,9 @@ public class ListAdapter extends BaseAdapter {
     }
 
     //두번째 여벌의 arraylist에 삽입
-    private void addObjectSecondList(int _id, String name, String addr, String tel, String telFromDataHelper){
-        arraylist.add(new phoneBookItemObject(_id,name,addr,tel,telFromDataHelper));
-    }
+//    private void addObjectSecondList(int _id, String name, String addr, String tel, String telFromDataHelper){
+//        arraylist.add(new phoneBookItemObject(_id,name,addr,tel,telFromDataHelper));
+//    }
     //두번째 여벌의 arraylist에 삭제
     private void removeObjectSecondList(phoneBookItemObject itemObject){
         arraylist.remove(itemObject);
@@ -127,35 +127,7 @@ public class ListAdapter extends BaseAdapter {
     private void setObjectSecondList(int pos, phoneBookItemObject itemObject){
         arraylist.set(pos, itemObject);
     }
-    /**
-     * dataArray(제이슨 어레이로부터 제이슨 오브젝트를 하나하나 리스트에 add를 한다
-     */
-    public void addJsonObject(JSONObject jObject){
 
-        //읽어들인 jsonaraay에 새로운 jsonobject를 담고 json 파일을 저장한다
-        jsonDataHelper.addJsonObjectatArray(jObject);
-
-        //기존 phonebooklist를 클리어 하고
-        phoneBookList.clear();
-
-        //새롭게 phoneBookList를 json으로부터 불러온다
-        getDataListFromJson();
-
-        //새롭게 phoneBookList를 sql로부터 불러온다
-        getDataListFromSQLite();
-
-        //새롭게  phoneBookList를 xml로부터 불러온다
-        getDataListFromXML();
-
-        //새롭게 phonecBookList를 pref로부터 불러온다
-        getDataListFromPref();
-
-        //클리어 후 여벌 리스트에 복사
-        arraylist.clear();
-        arraylist.addAll(phoneBookList);
-        //데이터 구성의 변경이 있음을 아답터에게 알리고 리스트뷰를 갱신하도록 한다
-        notifyDataSetChanged();
-    }
 
     public void refreshData(){
 
@@ -178,35 +150,6 @@ public class ListAdapter extends BaseAdapter {
 
         //데이터 구성의 변경이 있음을 아답터에게 알리고 리스트뷰를 갱신하도록 한다
         notifyDataSetChanged();
-    }
-
-    /**
-     * 읽어들인 jsonArray로부터 개별적인 object를 꺼내어서 phonebooklist에 담는다
-     */
-    public void getDataListFromJson(){
-        //json 데이터 처리 부분
-
-        JSONArray dataArray = new JsonDataHelper(mContext).getJsonData();
-        //json end
-        // 테스트 데이터
-        // dataArray.put(jsonDataHelper.addJsonFile("고남길","부산","010"));
-        for(int i =0; i<dataArray.length(); i++){
-            try {
-                JSONObject jObject = dataArray.getJSONObject(i);
-                int _id = jObject.getInt("_id");
-                String name = jObject.getString("name");
-                String addr = jObject.getString("addr");
-                String tel = jObject.getString("tel");
-                String telFromDataHelper = jObject.getString("telFromDataHelper");
-
-                phoneBookList.add(new phoneBookItemObject(_id,name,addr,tel,telFromDataHelper));
-//                Collections.sort(phoneBookList, cmpAsc) ;
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
     }
 
     /**
@@ -233,6 +176,14 @@ public class ListAdapter extends BaseAdapter {
             }
         }
         dataBaseAdapter.close();
+    }
+
+    /**
+     * 읽어들인 jsonArray로부터 개별적인 object를 꺼내어서 phonebooklist에 담는다
+     */
+    public void getDataListFromJson(){
+        ArrayList<phoneBookItemObject> jsonDataFromJSON = jsonDataHelper.getJsonData();
+        phoneBookList.addAll(jsonDataFromJSON);
     }
 
     /**
@@ -330,8 +281,10 @@ public class ListAdapter extends BaseAdapter {
      * @param tel
      */
     public void add(int _id, String name, String addr, String tel, String dataStore){
-        addObjectSecondList(_id, name, addr, tel, dataStore);
+//        addObjectSecondList(_id, name, addr, tel, dataStore);
         phoneBookList.add(new phoneBookItemObject(_id,name,addr,tel,dataStore));
+        arraylist.clear();
+        arraylist.addAll(phoneBookList);
         notifyDataSetChanged();
     }
 
@@ -340,7 +293,6 @@ public class ListAdapter extends BaseAdapter {
      * @param item
      */
     public void remove(phoneBookItemObject item){
-//        removeObjectSecondList(item);
         phoneBookList.remove(item);
         arraylist.clear();
         arraylist.addAll(phoneBookList);

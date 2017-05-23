@@ -153,9 +153,9 @@ public class MainActivity extends AppCompatActivity {
                             case "Json":
                                 //jsonhelper 열기
                                 JsonDataHelper jsonDataHelper = new JsonDataHelper(context);
-                                //입력받은 값으로 제이슨 오브젝트를 만든다
-                                JSONObject jObject = jsonDataHelper.makeJsonObject(makeAutoId(),name,addr,phone,"Json");
-                                mListAdapter.addJsonObject(jObject);
+                                int json_id = makeAutoId();
+                                jsonDataHelper.insertJsonData(json_id,name,addr,phone,"Json");
+                                mListAdapter.add(json_id,name,addr,phone,"Json");
                                 Toast.makeText(context,"Json",Toast.LENGTH_SHORT).show();
                                 break;
                             case "XML":
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
             case "Json":
                 JsonDataHelper mJsonDataHelper = new JsonDataHelper(context);
                 mJsonDataHelper.deleteJsonFile(_id);
-                mListAdapter.refreshData();
+//                mListAdapter.refreshData();
                 break;
             case "XML":
                 XmlDataHelper mXmlDataHelper = new XmlDataHelper(context);
@@ -267,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (SAXException e) {
                     e.printStackTrace();
                 }
-                mListAdapter.refreshData();
+//                mListAdapter.refreshData();
                 break;
             case "Preference":
                 PrefDataHelper mPrefDataHelper = new PrefDataHelper(context);
@@ -326,6 +326,8 @@ public class MainActivity extends AppCompatActivity {
             case "Preference":
                 setDataNum = 3;
                 break;
+            default:
+                break;
         }
         /// 수정된 문자열이 들어갈 입력창의 위젯 부분
         etNameInput.setText(name_edit);
@@ -382,6 +384,8 @@ public class MainActivity extends AppCompatActivity {
                         PrefDataHelper mPrefDataHelper = new PrefDataHelper(context);
                         mPrefDataHelper.updateItemFromInPref(_id_edit, getName, getAddr, getTell, selectedDataStore);
                         break;
+                    default:
+                        break;
                 }
                 phoneBookItemObject setItem = new phoneBookItemObject(_id_edit, getName, getAddr, getTell, selectedDataStore);
                 mArrayListForUpdateDelete.set(position,setItem);
@@ -392,9 +396,7 @@ public class MainActivity extends AppCompatActivity {
         });
         alertDialog.show();
     }
-    public void updateListAfterSetItem(int pos){
 
-    }
 
     public int makeAutoId(){
         //자체 프라이머리 id 만들기

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.Build;
 import android.widget.Toast;
 
+import com.dsa.total.datasolutionapp.DataTransferObject.phoneBookItemObject;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.util.ArrayList;
 
 /**
  * Created by konamgil on 2017-05-19.
@@ -28,13 +31,15 @@ public class JsonDataHelper {
     //assets 폴더에 있는 json 파일의 이름이다
     private String JsonDataFileName = "jsonphonebook.json";
     private JSONArray jarray = null;
+    private ArrayList<phoneBookItemObject> mArrayList;
     /**
      * 생성자
      * @param context
      */
     public JsonDataHelper(Context context) {
-        this.mContext = context;
-        loadJSONFromAsset();
+        mContext = context;
+        mArrayList = new ArrayList<phoneBookItemObject>();
+        jarray = getJsonArrayDataFromFile();
     }
 
 
@@ -49,6 +54,33 @@ public class JsonDataHelper {
         saveJsonFile(jarray);
     }
 
+    //새로 만드는중
+    public ArrayList getJsonData(){
+        JSONArray dataArray  = getJsonArrayDataFromFile();
+
+        for(int i =0; i<dataArray.length(); i++){
+            try {
+                JSONObject jObject = dataArray.getJSONObject(i);
+                int _id = jObject.getInt("_id");
+                String name = jObject.getString("name");
+                String addr = jObject.getString("addr");
+                String tel = jObject.getString("tel");
+                String telFromDataHelper = jObject.getString("telFromDataHelper");
+
+                mArrayList.add(new phoneBookItemObject(_id,name,addr,tel,telFromDataHelper));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return mArrayList;
+    }
+
+    public void insertJsonData(int _id, String name, String addr, String tel,String Json){
+        JSONObject newJsonObject = makeJsonObject(_id, name, addr, tel, Json);
+        jarray.put(newJsonObject);
+        saveJsonFile(jarray);
+    }
 
     /**
      * //_id 값 받아와서 jarray를 돌면서 일치하는 _id가 있으면 해당 오브젝트의 순서를 삭제
@@ -81,7 +113,6 @@ public class JsonDataHelper {
      */
     public void updateJsonFile(int _id_edit, String getName, String getAddr, String getTell, String selectedDataStore){
         JSONObject jObject = makeJsonObject(_id_edit, getName, getAddr, getTell,selectedDataStore);
-
         int len = jarray.length();
         if(jarray != null){
             for(int i=0; i<len; i++){
@@ -103,13 +134,16 @@ public class JsonDataHelper {
      * asset 폴더에 있는 json 파일을 로드한다
      * @return 읽어들인 json 파일의 문자열 정보가 담겨있다
      */
-    private void loadJSONFromAsset() {
+    private JSONArray getJsonArrayDataFromFile() {
         String json = null;
         FileInputStream is = null;
         InputStream iss = null;
+        JSONArray currentDataJsonData = null;
         try {
             File isFile = new File(mContext.getFilesDir() +"/"+ JsonDataFileName);
+
             if(isFile.exists() == false){
+
                 iss = mContext.getAssets().open(JsonDataFileName); //assets 에서 가져오기
                 int size = iss.available();
                 byte[] buffer = new byte[size];
@@ -131,22 +165,16 @@ public class JsonDataHelper {
                     is.close();
                     json = new String(buffer, "UTF-8");
             }
-
-            jarray = new JSONArray(json);
-
         } catch (IOException ex) {
             ex.printStackTrace();
+        }
+        try {
+            currentDataJsonData = new JSONArray(json);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
 
-    /**
-     * json 파일의 담겨있는 문자열 정보를 array에 담아서 array를 반환한다
-     * @return JSONArray
-     */
-    public JSONArray getJsonData(){
-        return jarray;
+        return currentDataJsonData;
     }
 
     /**
@@ -156,7 +184,7 @@ public class JsonDataHelper {
      * @param tel
      * @return
      */
-    public JSONObject makeJsonObject(int _id, String name, String addr, String tel,String Json){
+    private JSONObject makeJsonObject(int _id, String name, String addr, String tel,String Json){
         JSONObject jObject = new JSONObject();
         try {
             jObject.put("_id", _id);
@@ -178,9 +206,7 @@ public class JsonDataHelper {
         try {
             Writer output = null;
             File file = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                file = new File(mContext.getFilesDir() +"/"+ JsonDataFileName);
-            }
+            file = new File(mContext.getFilesDir() +"/"+ JsonDataFileName);
             output = new BufferedWriter(new FileWriter(file));
             output.write(mjarray.toString());
             output.close();
@@ -197,14 +223,14 @@ public class JsonDataHelper {
     public void copyFileFromAssets() {
         InputStream is = null;
         FileOutputStream fos = null;
-        File outDir = new File(mContext.getFilesDir() +"/");
-        outDir.mkdirs();
+//        File outDir = new File(mContext.getFilesDir() +"/");
+//        outDir.mkdirs();
 
         try {
             is = mContext.getAssets().open(JsonDataFileName);
             int size = is.available();
             byte[] buffer = new byte[size];
-            File outfile = new File(outDir + "/" + JsonDataFileName);
+            File outfile = new File(mContext.getFilesDir() +"/"+ JsonDataFileName);
             fos = new FileOutputStream(outfile);
             for (int c = is.read(buffer); c != -1; c = is.read(buffer)) {
                 fos.write(buffer, 0, c);
