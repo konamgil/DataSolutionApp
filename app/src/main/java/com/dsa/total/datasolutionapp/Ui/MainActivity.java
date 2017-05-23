@@ -78,9 +78,10 @@ public class MainActivity extends AppCompatActivity {
         //EditText의 필터 부분에 와쳐를 연결한다
         etName.addTextChangedListener(tw);
 
-        mArrayListForUpdateDelete = mListAdapter.getAllDataList();
+        mArrayListForUpdateDelete = mListAdapter.getAllDataLiatR();
+//        mArrayListForUpdateDelete = mListAdapter.getAllDataList();
 
-        dataList.setOnItemLongClickListener(mOnItemLongClickListener);
+        dataList.setOnItemClickListener(mOnItemClickListener);
         hideSoftKeyboard(etName);
     }
 
@@ -187,10 +188,12 @@ public class MainActivity extends AppCompatActivity {
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //수정 삭제 ui만들것임
-    ListView.OnItemLongClickListener mOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+    ListView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-            new BottomSheet.Builder(context, R.style.MyBottomSheetStyle)
+        public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+
+            BottomSheet.Builder mBottomSheet = new BottomSheet.Builder(context, R.style.MyBottomSheetStyle);
+                mBottomSheet
                     .setSheet(R.menu.bottom_sheet)
                     .setTitle("메뉴")
                     .setListener(new BottomSheetListener() {
@@ -214,10 +217,13 @@ public class MainActivity extends AppCompatActivity {
                                 case R.id.deletePhoneItem:
                                     int _id = mArrayListForUpdateDelete.get(position).get_id();
                                     String kindsOfDatastore = mArrayListForUpdateDelete.get(position).getTelFromDataHelper();
+
                                     Log.d(TAG,"_id : " + _id + ", " + "kindsOfDatastore : " + kindsOfDatastore);
 
                                     phoneBookItemObject thisItem = (phoneBookItemObject)mListAdapter.getItem(position);
+
                                     deleteData(_id,kindsOfDatastore);
+
                                     mArrayListForUpdateDelete.remove(thisItem);
                                     mListAdapter.remove(thisItem);
                                     mListAdapter.notifyDataSetChanged();
@@ -230,7 +236,6 @@ public class MainActivity extends AppCompatActivity {
                         public void onSheetDismissed(@NonNull BottomSheet bottomSheet, @DismissEvent int i) {}
                     })
                     .show();
-            return true;
         }
     };
 
@@ -244,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
             case "SQLite":
                 DataBaseAdapter mDataBaseAdapter = new DataBaseAdapter(context);
                 mDataBaseAdapter.deletePhoneBookData(_id);
+//                mListAdapter.refreshData();
                 break;
             case "Json":
                 JsonDataHelper mJsonDataHelper = new JsonDataHelper(context);

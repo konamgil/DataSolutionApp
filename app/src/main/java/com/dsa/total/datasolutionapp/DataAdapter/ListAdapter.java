@@ -94,6 +94,10 @@ public class ListAdapter extends BaseAdapter {
         return this.arraylist;
     }
 
+    public ArrayList getAllDataLiatR(){
+        return phoneBookList;
+    }
+
     /**
      * 새로 추가되는 jsonobject를 여벌의 list에 담는다
      * @param jObject
@@ -216,17 +220,17 @@ public class ListAdapter extends BaseAdapter {
 
         Cursor getCursorFromSQLite = dataBaseAdapter.selectPhoneBookData();
 
-        while (getCursorFromSQLite.moveToNext()){
-            //db 필드 담아와서 각 변수에 대입
-            int _id = getCursorFromSQLite.getInt(0);
-            String telName = getCursorFromSQLite.getString(1);
-            String telAddress = getCursorFromSQLite.getString(2);
-            String telNumber = getCursorFromSQLite.getString(3);
-            String telFromDataHelper = getCursorFromSQLite.getString(4);
+        if (getCursorFromSQLite.getCount() > 0) {
+            while (getCursorFromSQLite.moveToNext()) {
+                //db 필드 담아와서 각 변수에 대입
+                int _id = getCursorFromSQLite.getInt(0);
+                String telName = getCursorFromSQLite.getString(1);
+                String telAddress = getCursorFromSQLite.getString(2);
+                String telNumber = getCursorFromSQLite.getString(3);
+                String telFromDataHelper = getCursorFromSQLite.getString(4);
 
-            phoneBookList.add(new phoneBookItemObject(_id,telName,telAddress,telNumber,telFromDataHelper));
-//            Collections.sort(phoneBookList, cmpAsc) ;
-
+                phoneBookList.add(new phoneBookItemObject(_id, telName, telAddress, telNumber, telFromDataHelper));
+            }
         }
         dataBaseAdapter.close();
     }
@@ -336,8 +340,10 @@ public class ListAdapter extends BaseAdapter {
      * @param item
      */
     public void remove(phoneBookItemObject item){
-        removeObjectSecondList(item);
+//        removeObjectSecondList(item);
         phoneBookList.remove(item);
+        arraylist.clear();
+        arraylist.addAll(phoneBookList);
         notifyDataSetChanged();
     }
 

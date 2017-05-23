@@ -68,6 +68,7 @@ public class XmlDataHelper {
      * @return
      */
     public ArrayList getXmlData(){
+        mXmlArray = xmlParser();
        return  mXmlArray;
     }
 

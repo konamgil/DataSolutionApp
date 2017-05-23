@@ -23,8 +23,6 @@ public class DataBaseAdapter {
     private SQLiteDatabase mDb;
     private DataBaseHelper mDbHelper;
 
-    private final String SQLITE = HelperType.getSQLITE();
-
     /**
      * 생성자
      * @param context
@@ -62,7 +60,7 @@ public class DataBaseAdapter {
         try
         {
             mDbHelper.openDataBase();
-            mDbHelper.close();
+//            mDbHelper.close();
             mDb = mDbHelper.getReadableDatabase();
         }
         catch (SQLException mSQLException)
@@ -88,11 +86,6 @@ public class DataBaseAdapter {
             String sql ="SELECT * FROM phonebook";
 
             Cursor mCur = mDb.rawQuery(sql, null);
-            if (mCur!=null)
-            {
-                mCur.moveToNext();
-            }
-            mDbHelper.close();
             return mCur;
         }
         catch (SQLException mSQLException) {
@@ -108,7 +101,6 @@ public class DataBaseAdapter {
 //                String sql = "INSERT INTO phonebook (_id, telName, telNumber, telAddress,telFromDataHelper) VALUES (101, '고남길', '01072553466', '서울시 송파구 거여동', 'SQLite' );";
                 mDb.execSQL(sql);
                 mDbHelper.close();
-                mDb.close();
 
             } catch (SQLException mSQLException) {
                 Log.e(TAG, "insertPhoneBookData >>" + mSQLException.toString());
@@ -120,7 +112,7 @@ public class DataBaseAdapter {
             try {
 
                 mDb = mDbHelper.getWritableDatabase();
-                String sql = "UPDATE phonebook SET telName = '"+telName+"', telAddress = '"+telAddress+"', telNumber = '"+telNumber+"', telFromDataHelper = 'SQLITE' WHERE _id = "+_id+";";
+                String sql = "UPDATE phonebook SET telName = '"+telName+"', telAddress = '"+telAddress+"', telNumber = '"+telNumber+"', telFromDataHelper = '"+telFromDataHelper+"' WHERE _id = "+_id+";";
                 mDb.execSQL(sql);
                 mDbHelper.close();
 
