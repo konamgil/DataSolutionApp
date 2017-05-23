@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnCancel;
 
     private ArrayList<phoneBookItemObject> mArrayListForUpdateDelete;
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
         //리스에 어댑터를 연결한다
         dataList.setAdapter(mListAdapter);
         //데이터 변경이 있으면 리스트뷰의 스크롤을 최하단으로 내린다
-        dataList.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+//        dataList.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+        dataList.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         //EditText의 필터 부분에 와쳐를 연결한다
         etName.addTextChangedListener(tw);
 
@@ -89,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
     public void init() {
         etName = (EditText) findViewById(R.id.etName);
         dataList = (ListView) findViewById(R.id.listView);
-//        Button selectBtn = (Button) findViewById(R.id.selectBtn);
         Button addBtn = (Button)findViewById(R.id.addBtn);
 
         /**
@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
                         alertDialog.dismiss();
                         Toast.makeText(context,"추가되었습니다",Toast.LENGTH_SHORT).show();
+                        hideSoftKeyboard(etName);
                     }
                 });
                 alertDialog.show();
@@ -208,11 +209,6 @@ public class MainActivity extends AppCompatActivity {
                                     String kindsOfDatastore_edit = mArrayListForUpdateDelete.get(position).getTelFromDataHelper();
 
                                     update(_id_edit, name_edit, addr_edit, tel_edit, kindsOfDatastore_edit, position);
-
-//                                    phoneBookItemObject setItem = new phoneBookItemObject(_id_edit, name_edit, addr_edit, tel_edit, kindsOfDatastore_edit);
-//                                    mArrayListForUpdateDelete.set(position,setItem);
-//                                    mListAdapter.set(position, setItem);
-//                                    mListAdapter.notifyDataSetChanged();
 
                                     break;
                                 case R.id.deletePhoneItem:

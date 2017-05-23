@@ -20,7 +20,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by konamgil on 2017-05-19.
@@ -79,6 +82,9 @@ public class ListAdapter extends BaseAdapter {
         //phoneBookList에 sqlite Pref로부터 읽어들인 데이터를 가져온다
         prefDataHelper = new PrefDataHelper(mContext);
         getDataListFromPref();
+
+        //이름 정렬
+        Collections.sort(phoneBookList, cmpAsc) ;
 
         //기존의 phoneBookLiST를 여벌의 arraylist에 복사한다.
         this.arraylist.addAll(phoneBookList);
@@ -190,6 +196,8 @@ public class ListAdapter extends BaseAdapter {
                 String telFromDataHelper = jObject.getString("telFromDataHelper");
 
                 phoneBookList.add(new phoneBookItemObject(_id,name,addr,tel,telFromDataHelper));
+//                Collections.sort(phoneBookList, cmpAsc) ;
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -217,6 +225,8 @@ public class ListAdapter extends BaseAdapter {
             String telFromDataHelper = getCursorFromSQLite.getString(4);
 
             phoneBookList.add(new phoneBookItemObject(_id,telName,telAddress,telNumber,telFromDataHelper));
+//            Collections.sort(phoneBookList, cmpAsc) ;
+
         }
         dataBaseAdapter.close();
     }
@@ -362,5 +372,15 @@ public class ListAdapter extends BaseAdapter {
         }
         notifyDataSetChanged();
     }
+
+    /**
+     * 정렬
+     */
+    Comparator<phoneBookItemObject> cmpAsc = new Comparator<phoneBookItemObject>() {
+        @Override
+        public int compare(phoneBookItemObject o1, phoneBookItemObject o2) {
+            return o1.getTelName().compareTo(o2.getTelName()) ;
+        }
+    } ;
 
 }
